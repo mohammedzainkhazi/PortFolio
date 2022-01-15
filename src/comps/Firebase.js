@@ -2,7 +2,7 @@ import { initializeApp } from "firebase/app";
 import { getDatabase} from 'firebase/database';
 import firebase from 'firebase/compat/app';
 const firebaseConfig = {
-//     Confuguration       
+//     Configuration       
 };
 
 // Initialize Firebase
