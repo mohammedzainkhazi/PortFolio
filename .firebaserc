@@ -1,0 +1,12 @@
+{
+  "projects": {},
+  "targets": {
+    "mohammedzainkhazi": {
+      "hosting": {
+        "admin": [
+          "mohammedzainkhazi"
+        ]
+      }
+    }
+  }
+}
