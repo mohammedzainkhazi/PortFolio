@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { Button, IconButton } from "@mui/material";
 import { VideoCallOutlined } from "@mui/icons-material";
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
+import axios from "axios";
 
 function Search(props) {
 
@@ -13,6 +14,29 @@ function Search(props) {
         transform: 'translate(-50%, -50%)',
         p: 4,
     }
+const [data, setdata] = useState("");
+
+  const handleSearch = ()=> {
+      console.log("done")
+      var myParams = {
+      data: "image",
+      count:"video"
+    };
+      axios
+        .post("http://localhost:5000/data",myParams,{ "Content-type":"application/json" },
+        )
+        .then(function (response) {
+        //   console.log(response.data.tweets["url"]);
+            console.log(response)
+            setdata(response.data);
+            console.log(response.data["hi"])
+        })
+        .catch(function (error)
+        {
+          console.log(error);
+        });
+    // e.preventDefault();
+  }
 
     return (
         <div className="App">
@@ -60,7 +84,7 @@ function Search(props) {
                         <input type="text" className="bg-gray-300 py-2 text-center focus:bg-white" placeholder="Criminal Name" />
                     </div>
                     <div className="flex justify-center items-center w-full">
-                    <Button variant="outlined" startIcon={<PersonSearchIcon />}>
+                        <Button variant="outlined" startIcon={<PersonSearchIcon />} onClick={handleSearch}>
                         Start Detection
                     </Button>
                     </div>
