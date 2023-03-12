@@ -2,15 +2,17 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 function FileUpload1() {
-  const [file, setFile] = useState(null);
+  const [files, setFiles] = useState([]);
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    setFiles(event.target.files);
   };
 
   const handleFileUpload = async () => {
     const formData = new FormData();
-    formData.append('file', file);
+    for (let i = 0; i < files.length; i++) {
+      formData.append('files', files[i]);
+    }
 
     try {
       await axios.post('http://localhost:5000/upload', formData, {
@@ -18,15 +20,15 @@ function FileUpload1() {
           'Content-Type': 'multipart/form-data'
         }
       });
-      console.log('File uploaded successfully');
+      console.log('Files uploaded successfully');
     } catch (error) {
-      console.error('Error uploading file:', error);
+      console.error('Error uploading files:', error);
     }
   };
 
   return (
     <div>
-      <input type="file" accept="image/jpeg, video/*" onChange={handleFileChange} />
+      <input type="file" accept="video/*" multiple onChange={handleFileChange} />
       <button onClick={handleFileUpload}>Upload</button>
     </div>
   );
