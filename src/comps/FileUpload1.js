@@ -1,4 +1,8 @@
 import React, { useState } from 'react';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+import { Button, IconButton } from "@mui/material";
+import { VideoCallOutlined } from "@mui/icons-material";
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import axios from 'axios';
 
 function FileUpload1() {
@@ -29,7 +33,10 @@ function FileUpload1() {
   return (
     <div>
       <input type="file" accept="video/*" multiple onChange={handleFileChange} />
-      <button onClick={handleFileUpload}>Upload</button>
+      {/* <button onClick={handleFileUpload}>Upload</button> */}
+       { <Button onClick={handleFileUpload} variant="contained" component="label" endIcon={<VideoCallOutlined />}>
+                            Upload
+                        </Button> }
     </div>
   );
 }

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import PhotoCamera from '@mui/icons-material/PhotoCamera';
+// import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import { Button, IconButton } from "@mui/material";
-import { VideoCallOutlined } from "@mui/icons-material";
+// import { VideoCallOutlined } from "@mui/icons-material";
 import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import axios from "axios";
-
+import FileUpload1 from "./FileUpload1";
 function Search(props) {
 
     const style = {
@@ -45,10 +45,8 @@ const [data, setdata] = useState("");
                 <h3>Search A Criminal</h3>
                 <div className="flex flex-col gap-4 mt-4 justify-center items-start w-full">
                     <div className="w-full flex-col lg:flex-row flex gap-3">
-                        <Button variant="contained" component="label" endIcon={<VideoCallOutlined />}>
-                            Choose Videos
-                            {/* <input hidden accept="video/*" multiple type="file" /> */}
-                        </Button>
+                       
+                        <FileUpload1 />
                         <div className="flex gap-3">
                             <IconButton component="label" className="text-white !bg-blue-500 w-12 rounded-full outline-1 outline-black">1
                                 <input hidden accept="video/*" multiple type="file" />
@@ -70,10 +68,11 @@ const [data, setdata] = useState("");
                     </div>
                     <br />
                     <div className="w-full justify-between items-center flex gap-3">
-                        <Button variant="contained" component="label" endIcon={<PhotoCamera />}>
+                        {/* <Button variant="contained" component="label" endIcon={<PhotoCamera />}>
                             Choose Image
                             <input hidden accept="image/*" multiple type="file" />
-                        </Button>
+                        </Button> */}
+                         <FileUpload1 />
                         <img className="w-[200px] h-[100px]"
                             src="https://www.shutterstock.com/image-photo/prime-suspect-orange-prison-jumpsuit-260nw-1169300515.jpg"
                             alt='criminalImage'
