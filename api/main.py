@@ -1,5 +1,5 @@
 
-from flask import Flask,request
+from flask import Flask, request
 from flask_cors import CORS
 
 
@@ -14,8 +14,18 @@ class Tweet(Flask):
         data = request.get_json()  
         print(data)
         # data = "hello"
-        return {"hi":data}
-    
+        return {"hi": data}
+
+
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    file.save(file.filename)
+    # Process the file here
+    return 'File uploaded successfully'
+
+
 if __name__ == '__main__':
     app.run(debug=True,port=5000)
 
