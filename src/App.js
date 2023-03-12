@@ -6,8 +6,10 @@ import Search from './comps/Search';
 import History from './comps/History';
 import Team from './comps/Team';
 import Home from './comps/Home';
+// import FileUpload1 from './comps/FileUpload1';
 import AOS from 'aos';
 import 'aos/dist/aos.css'; // You can also use <link> for styles
+// import { FileUpload } from '@mui/icons-material';
 
 function App() {
   AOS.init();
@@ -20,7 +22,7 @@ function App() {
           <Route exact path="/home" element={<Home bg={bg}/>} /> 
           <Route path="search" element={<Search bg={bg}/>} />
           <Route path="history" element={<History/>} />
-          <Route path="team" element={<Team/>} />
+          <Route path="team" element={<Team />} />      
         </Routes>
       </BrowserRouter>
     </div>
