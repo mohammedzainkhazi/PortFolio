@@ -20,10 +20,11 @@ class Tweet(Flask):
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    file = request.files['file']
-    file.save(file.filename)
-    # Process the file here
-    return 'File uploaded successfully'
+    files = request.files.getlist('files')
+    for file in files:
+        file.save(file.filename)
+        # Process each file here
+    return 'Files uploaded successfully'
 
 
 if __name__ == '__main__':
