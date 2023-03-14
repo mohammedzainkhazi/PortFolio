@@ -21,7 +21,7 @@ const [data, setdata] = useState("");
       var myParams = {
       data: "image",
       count:"video"
-    };
+      };
       axios
         .post("http://localhost:5000/data",myParams,{ "Content-type":"application/json" },
         )
