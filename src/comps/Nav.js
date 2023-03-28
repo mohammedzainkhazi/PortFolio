@@ -24,7 +24,7 @@ function Nav() {
           {
             ['home','select','search','history','team'].map((link,i)=>(
               <Link to={link} onClick={() => setOpen(!open)} key={i}>
-              <a href="#responsive-header" className={`block mt-4 lg:inline-block lg:mt-0 text-white hover:text-black mr-4 px-4 hover:bg-gray-200 py-2 rounded-lg ${location.pathname === '/'+link && 'bg-white text-black'}`}>
+              <a href="#responsive-header" className={`block mt-4 lg:inline-block lg:mt-0 hover:text-black mr-4 px-4 hover:bg-gray-200 py-2 rounded-lg ${location.pathname === '/'+link ? 'bg-white !text-black' : 'text-white'}`}>
                 {link.toUpperCase()}
               </a>
             </Link>
