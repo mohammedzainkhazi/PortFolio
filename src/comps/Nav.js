@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 function Nav() {
   const [open, setOpen] = useState(false);
+
+  const location = useLocation();
 
   return (
     <nav className="flex items-center justify-between flex-wrap bg-blue-500 p-6 z-10">
@@ -19,21 +21,15 @@ function Nav() {
       </div>
       <div className={`w-full block flex-grow lg:flex lg:justify-end lg:items-end lg:w-auto ${!open && 'hidden'}`}>
         <div className="text-sm lg:flex-grow lg:flex lg:justify-end lg:items-end">
-          <Link to="/home" onClick={() => setOpen(!open)}>
-            <a href="#responsive-header" className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-black mr-4 px-4 hover:bg-gray-300 py-2 rounded-lg">
-              HOME
-            </a>
-          </Link>
-          <Link to="/search" onClick={() => setOpen(!open)}>
-            <a href="#responsive-header" className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-black mr-4 px-4 hover:bg-gray-300 py-2 rounded-lg">
-              SEARCH CRIMINAL
-            </a>
-          </Link>
-          <Link to="/history" onClick={() => setOpen(!open)}>
-            <a href="#responsive-header" className="block mt-4 lg:inline-block lg:mt-0 text-white hover:text-black mr-4 px-4 hover:bg-gray-300 py-2 rounded-lg">
-              HISTORY
-            </a>
-          </Link>
+          {
+            ['home','select','search','history','team'].map((link,i)=>(
+              <Link to={link} onClick={() => setOpen(!open)} key={i}>
+              <a href="#responsive-header" className={`block mt-4 lg:inline-block lg:mt-0 text-white hover:text-black mr-4 px-4 hover:bg-gray-200 py-2 rounded-lg ${location.pathname === '/'+link && 'bg-white text-black'}`}>
+                {link.toUpperCase()}
+              </a>
+            </Link>
+            ))
+          }
         </div>
       </div>
     </nav>
