@@ -1,10 +1,13 @@
 import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import { getStorage } from "firebase/storage";
+import { getDatabase, update, ref as dbRef } from "firebase/database";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyAxqxReaMDWVhbPwnArjTQf1R39vJD4-JM",
   authDomain: "aicriminaldetector.firebaseapp.com",
+  databaseURL: "https://aicriminaldetector-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "aicriminaldetector",
   storageBucket: "aicriminaldetector.appspot.com",
   messagingSenderId: "926273086465",
@@ -13,4 +16,18 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-export const storage = getStorage(app);
+export const database = getDatabase(app);
+export const storage = getStorage();
+
+export const uploadImage = async (file, name) => {
+  const storageRef = ref(storage, 'criminal/' + name + '.jpg');
+  try {
+    await uploadBytes(storageRef, file);
+    getDownloadURL(storageRef).then((url) => {
+      update(dbRef(database,'criminals/'), {[name]:url});
+    });
+    return "Uploaded Criminal Image"
+  } catch (error) {
+    return error;
+  }
+}
