@@ -2,14 +2,14 @@ import React from 'react'
 
 function Footer() {
     return (
-        <div>
+        <div className='m-4'>
             <footer className="text-gray-500 bg-gray-900 body-font m-3 rounded-lg">
 	<br/>
   <div className="container px-5 pb-5 mx-auto flex items-center sm:flex-row flex-col">
     <a href="https://mohammedzainkhazi.web.app" className="flex title-font font-medium items-center md:justify-start justify-center text-white">
       <span className="ml-3 text-xl">RootZain 👑</span>
     </a>
-    <span className="inline-flex sm:ml-auto sm:mt-0 mt-4 justify-center sm:justify-start">
+    <span className="flex mt-4 justify-center flex-row gap-4 items-center">
       <a className="text-gray-600" href="https://www.facebook.com/MOHAMMED.ZAIN.KHAZI/">
         <svg fill="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="w-5 h-5" viewBox="0 0 24 24">
           <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"></path>

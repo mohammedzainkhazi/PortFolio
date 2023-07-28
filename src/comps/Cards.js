@@ -8,9 +8,8 @@ function Cards() {
     const projects = [
             {
               Description : "This is Student Database Management website ,it also offers students to apply their Feedback form online and the Exam Fee Form i.e manual to automation.",
-              ImageUrl  : "https://mohammedzainkhazi.web.app/images/drr.jpg",
+              ImageUrl  : "https://yt3.googleusercontent.com/SfVYQLwt4heN__605i1mdA70-3Odp_i1TP0YteZP-d9pydWdnGblJTZtWVX8gThAf95lWKKd3Q=s900-c-k-c0x00ffffff-no-rj",
               Title: "DRR COLLEGE WEBSITE" ,
-              link: "http://drrpolytechnic.unaux.com"
             },
 
             {
