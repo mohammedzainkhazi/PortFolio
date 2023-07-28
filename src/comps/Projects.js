@@ -1,24 +1,11 @@
-import React,{useEffect,useState} from 'react';
+import {useEffect,useState} from 'react';
 import Card from './Card';
 import {db} from './Firebase';
 import {onValue, ref } from 'firebase/database';
 
-function Cards() {
+function Projects() {
 
     const projects = [
-            {
-              Description : "This is Student Database Management website ,it also offers students to apply their Feedback form online and the Exam Fee Form i.e manual to automation.",
-              ImageUrl  : "https://yt3.googleusercontent.com/SfVYQLwt4heN__605i1mdA70-3Odp_i1TP0YteZP-d9pydWdnGblJTZtWVX8gThAf95lWKKd3Q=s900-c-k-c0x00ffffff-no-rj",
-              Title: "DRR COLLEGE WEBSITE" ,
-            },
-
-            {
-              Description   : "This is anonymous chatting WebApp you can give your name anything and can start chatting with anonymous people around the world.",
-              ImageUrl    : "https://www.lifewire.com/thmb/mRzpp63IGR1OPs6IgB-GiRtuuTE=/1475x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/texting-abbreviations-579fb0c13df78c3276bf7887.png",
-              Title : "CHATTING SITE (In BETA)",
-              link: "http://mohammedzainkhazi.lovestoblog.com"
-            },
-
             {
               Description : "This is python programmed AI assistant which responds to almost queries of user just more like Google Assistant,Siri & Alexa",
               ImageUrl : "https://i.ytimg.com/vi/NZMTWBpLUa4/maxresdefault.jpg",
@@ -70,4 +57,4 @@ function Cards() {
     )
 }
 
-export default Cards
+export default Projects

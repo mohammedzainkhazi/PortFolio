@@ -5,6 +5,14 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
+    ],
+    "site": "mohammedzainkhazi",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   }
+
 }
