@@ -18,7 +18,7 @@ Welcome to my portfolio website! This site showcases my projects, skills, and ex
 
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/portfolio.git
+    git clone https://github.com/mohammedzainkhazi/portfolio.git
     ```
 2. Install dependencies:
     ```bash
@@ -31,7 +31,7 @@ Welcome to my portfolio website! This site showcases my projects, skills, and ex
 
 ## Contact
 
-Feel free to reach out via the contact form or email at [your.email@example.com](mailto:your.email@example.com).
+Feel free to reach out via the contact form or email at [mohammedzainkhazi@protonmail.com](mailto:mohammedzainkhazi@protonmail.com).
 
 ---
 
