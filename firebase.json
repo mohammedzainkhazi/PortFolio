@@ -6,7 +6,7 @@
       "**/.*",
       "**/node_modules/**"
     ],
-    "site": "mohammedzainkhazi",
+    "site": "MohammedZainKhazi",
     "rewrites": [
       {
         "source": "**",
