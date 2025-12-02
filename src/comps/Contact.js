@@ -1,36 +1,83 @@
-import React from 'react'
-import Footer from './Footer'
+import React from 'react';
 
 function Contact() {
     return (
-        <section id="contact" className="text-gray-400 bg-gray-900 body-font relative m-5 rounded-lg">
-            <div className="m-5 pl-5">
-                <h1 className=" w-1/3 w-sm p-5 pb-1 pl-0 text-white text-left text-lg font-bold">CONTACT</h1>
-                <p className="bg-indigo-900 w-1/3 h-1.5 rounded-lg"></p>
+        <div className="space-y-8 h-full flex flex-col">
+            <div className="flex flex-col space-y-2">
+                <h2 className="text-3xl font-bold text-white">Contact Me</h2>
+                <div className="h-1 w-20 bg-blue-500 rounded"></div>
+                <p className="text-slate-400">Feel free to reach out for collaborations or just a friendly hello!</p>
             </div>
-            <div className="container px-5 py-10 mx-auto flex sm:flex-nowrap justify-center flex-wrap mb-5 border-b border-5 border-indigo-900">
-                    
-                <div className="lg:w-2/3 md:w-1/2 bg-gray-900 rounded-lg overflow-hidden sm:mr-10 p-10 flex items-end justify-center relative">
-                <iframe width="100%" height="100%" title="map" className="absolute inset-0" frameBorder="0" marginHeight="0" marginWidth="0" scrolling="no" src="https://maps.google.com/maps?width=100%&height=600&hl=en&q=davangere+(My%20Business%20Name)&ie=UTF8&t=&z=14&iwloc=B&output=embed" style={{filter : "grayscale(1) contrast(1.2) opacity(0.16)"}}></iframe>
-                <div className="bg-gray-900 relative flex justify-center items-center flex-wrap py-6 rounded shadow-md">
-                    <div className="lg:w-1/2 px-6">
-                    <h2 className="title-font font-semibold text-white tracking-widest text-xs">ADDRESS</h2>
-                    <p className="mt-1">3rd Main 12th Cross,
-                    <br></br>
-                    Vinobanagar, Davangere - 577006</p>
+
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Contact Info */}
+                <div className="space-y-6">
+                    <div className="glass-card p-6 rounded-xl space-y-4">
+                        <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400">
+                                <i className="fas fa-map-marker-alt text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-white">Address</h3>
+                                <p className="text-slate-400">Davangere, Karnataka - 577006, India</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-400">
+                                <i className="fas fa-envelope text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-white">Email</h3>
+                                <a href="mailto:mohammedzainkhazi@protonmail.com" className="text-slate-400 hover:text-white transition-colors">mohammedzainkhazi@protonmail.com</a>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                            <div className="w-12 h-12 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-400">
+                                <i className="fas fa-phone text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-semibold text-white">Phone</h3>
+                                <p className="text-slate-400">+91 9164493673</p>
+                            </div>
+                        </div>
                     </div>
-                    <div className="lg:w-1/2 pl-10 pr-10 mt-4 lg:mt-0">
-                    <h2 className="title-font font-semibold text-white tracking-widest text-xs">EMAIL</h2>
-                    <p className="text-indigo-400 leading-relaxed">mohammedzainkhazi@protonmail.com</p>
-                    <h2 className="title-font font-semibold text-white tracking-widest text-xs mt-4">PHONE</h2>
-                    <p className="leading-relaxed">+91 9164493673</p>
+
+                    {/* Socials */}
+                    <div className="glass-card p-6 rounded-xl">
+                        <h3 className="text-lg font-semibold text-white mb-4">Follow Me</h3>
+                        <div className="flex space-x-4">
+                            <a href="https://github.com/mohammedzainkhazi/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center text-white hover:bg-slate-600 transition-colors">
+                                <i className="fab fa-github"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/in/rootzain/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-blue-700 flex items-center justify-center text-white hover:bg-blue-600 transition-colors">
+                                <i className="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="https://www.instagram.com/zain.khazi/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-full bg-pink-600 flex items-center justify-center text-white hover:bg-pink-500 transition-colors">
+                                <i className="fab fa-instagram"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
+
+                {/* Map */}
+                <div className="glass-card p-2 rounded-xl h-64 lg:h-auto min-h-[300px] overflow-hidden relative">
+                     <iframe
+                        width="100%"
+                        height="100%"
+                        title="map"
+                        className="absolute inset-0 rounded-lg filter grayscale opacity-70 hover:opacity-100 transition-opacity duration-300"
+                        frameBorder="0"
+                        scrolling="no"
+                        marginHeight="0"
+                        marginWidth="0"
+                        src="https://maps.google.com/maps?width=100%&height=600&hl=en&q=davangere&ie=UTF8&t=&z=14&iwloc=B&output=embed"
+                    ></iframe>
                 </div>
             </div>
-            <Footer/>
-        </section>
+        </div>
     )
 }
 
-export default Contact
+export default Contact;
