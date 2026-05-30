@@ -30,32 +30,12 @@ function useTypingEffect(text: string, speed = 18) {
 const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
   const skills = ['React', 'TypeScript', 'Node.js', 'Python', 'AWS', 'Docker'];
   const [introText, setIntroText] = useState('');
-  const imageWrapRef = useRef<HTMLDivElement>(null);
-
-  // Mouse-based 3D tilt on the image
-  useEffect(() => {
-    const el = imageWrapRef.current;
-    if (!el) return;
-    const onMove = (e: MouseEvent) => {
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (e.clientX - cx) / (rect.width / 2);
-      const dy = (e.clientY - cy) / (rect.height / 2);
-      el.style.transform = `perspective(900px) rotateY(${-8 + dx * 6}deg) rotateX(${-dy * 4}deg)`;
-    };
-    const onLeave = () => {
-      el.style.transform = 'perspective(900px) rotateY(-8deg) rotateX(2deg)';
-    };
-    window.addEventListener('mousemove', onMove, { passive: true });
-    el.addEventListener('mouseleave', onLeave);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      el.removeEventListener('mouseleave', onLeave);
-    };
-  }, []);
+  const hasParaphrasedRef = useRef(false);
 
   useEffect(() => {
+    if (hasParaphrasedRef.current) return;
+    hasParaphrasedRef.current = true;
+
     const paraphrase = async () => {
       const originalText = `Passionate about building scalable web applications and solving complex problems with clean, efficient code. Results driven Full-Stack Software Developer with 2+ years of experience and skilled in ReactJS, React Native, NextJS, Node.js,
             Python, C#,Java and Azure ecosystems. Proven track record of developing high-impact solutions at Shell with design patterns.
@@ -131,41 +111,19 @@ const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
             </div>
           </div>
 
-          {/* Image — tilted toward center, blur-fade edges, mouse 3D tilt */}
-          <div className="hero-image relative order-1 lg:order-2" style={{ perspective: '900px' }}>
-            <div
-              ref={imageWrapRef}
-              className="relative z-10 sm:mt-5 lg:mt-0"
-              style={{
-                transform: 'perspective(900px) rotateY(-8deg) rotateX(2deg)',
-                transformStyle: 'preserve-3d',
-                transition: 'transform 0.12s ease-out',
-                willChange: 'transform',
-              }}
-            >
-              {/* Blur-fade mask around edges */}
-              <div
-                className="rounded-2xl overflow-hidden"
-                style={{
-                  maskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
-                  WebkitMaskImage: 'radial-gradient(ellipse 88% 88% at 50% 50%, black 55%, transparent 100%)',
-                }}
-              >
-                <ImageWithFallback
-                  src={darkMode ? picturebw.src : picture.src}
-                  alt="Developer workspace"
-                  className="w-full h-[400px] sm:h-[300px] md:h-[500px] object-cover"
-                />
-              </div>
-
-              {/* Inner glow overlay for depth */}
-              <div className="absolute inset-0 rounded-2xl"
-                style={{ boxShadow: 'inset 0 0 60px rgba(0,0,0,0.5)' }} />
+          {/* Image — no tilt, clean render */}
+          <div className="hero-image relative order-1 lg:order-2">
+            <div className="relative z-10 sm:mt-5 lg:mt-0">
+              <ImageWithFallback
+                src={darkMode ? picturebw.src : picture.src}
+                alt="Developer workspace"
+                className="rounded-2xl w-full h-[400px] sm:h-[300px] md:h-[500px] object-cover"
+              />
             </div>
 
             {/* Ambient glow blobs */}
-            <div className="absolute -bottom-6 -left-6 w-72 h-72 bg-primary/10 rounded-full blur-3xl" />
-            <div className="absolute -top-6 -right-6 w-72 h-72 bg-accent/30 rounded-full blur-3xl" />
+            <div className="absolute -bottom-6 -left-6 w-72 h-72 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
+            <div className="absolute -top-6 -right-6 w-72 h-72 bg-accent/30 rounded-full blur-3xl pointer-events-none" />
           </div>
         </div>
       </div>

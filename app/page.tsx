@@ -17,7 +17,7 @@ const ContactSection = lazy(() => import('../src/components/ContactSection'));
 const Footer = lazy(() => import('../src/components/Footer'));
 
 export default function Home() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [visitor, setVisitor] = useState('Unknown');
 
