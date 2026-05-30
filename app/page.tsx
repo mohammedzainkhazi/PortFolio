@@ -4,6 +4,8 @@ import { useState, Suspense, lazy, useEffect } from 'react';
 import { Toaster } from 'sonner';
 import { Header } from '../src/components/Header';
 import AIChatBot from '../src/components/AIChatBot';
+import GalaxyBackground from '../src/components/GalaxyBackground';
+import { useGsapScrollAnimations } from '../src/hooks/useGsapScrollAnimations';
 
 const HeroSection = lazy(() => import('../src/components/HeroSection'));
 const AboutSection = lazy(() => import('../src/components/AboutSection'));
@@ -19,6 +21,8 @@ export default function Home() {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [visitor, setVisitor] = useState('Unknown');
 
+  useGsapScrollAnimations();
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const v = params.get('visitor');
@@ -31,6 +35,7 @@ export default function Home() {
 
   return (
     <div className={darkMode ? 'dark' : ''}>
+      <GalaxyBackground darkMode={darkMode} />
       <Header darkMode={darkMode} toggleDarkMode={() => setDarkMode(d => !d)} />
       <main>
         <Suspense fallback={null}>

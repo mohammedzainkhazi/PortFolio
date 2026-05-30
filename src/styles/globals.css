@@ -192,3 +192,59 @@
 html {
   font-size: var(--font-size);
 }
+
+/* Space / galaxy theme utilities */
+.dark body {
+  background: radial-gradient(ellipse at 20% 50%, #0d0b2a 0%, #020208 60%),
+              radial-gradient(ellipse at 80% 20%, #0a0520 0%, transparent 50%);
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(167, 139, 250, 0.6), 0 0 40px rgba(167, 139, 250, 0.3);
+}
+
+.glow-border {
+  box-shadow: 0 0 12px rgba(167, 139, 250, 0.4), inset 0 0 12px rgba(167, 139, 250, 0.05);
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(167, 139, 250, 0.4); }
+  50%       { box-shadow: 0 0 20px rgba(167, 139, 250, 0.8), 0 0 40px rgba(99, 102, 241, 0.3); }
+}
+
+.dark .glow-pulse {
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+/* Nebula blobs behind content */
+.dark main::before,
+.dark main::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark main::before {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(88, 28, 135, 0.18) 0%, transparent 70%);
+  top: 10%;
+  left: -10%;
+}
+
+.dark main::after {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+  bottom: 20%;
+  right: -5%;
+}
+
+/* Ensure content sits above canvas and nebula blobs */
+main section {
+  position: relative;
+  z-index: 1;
+}
