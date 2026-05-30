@@ -1,26 +1,24 @@
+'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
-import { Coffee, Code2, Zap, Users, Download } from 'lucide-react';
+import { Coffee, Code2, Zap, Users, Download, CogIcon } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { ChatSession } from './GrokChat';
 
 function useTypingEffect(text: string, speed = 18) {
-  const [displayed, setDisplayed] = useState('');
+  const [index, setIndex] = useState(0);
   useEffect(() => {
-    setDisplayed('');
-    if (!text) return;
-    let i = 0;
-    const interval = setInterval(() => {
-      setDisplayed((prev) => prev + text[i]);
-      i++;
-      if (i >= text.length) clearInterval(interval);
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed]);
-  return displayed;
+    setIndex(0);
+  }, [text]);
+  useEffect(() => {
+    if (!text || index >= text.length) return;
+    const timeout = setTimeout(() => setIndex((i) => i + 1), speed);
+    return () => clearTimeout(timeout);
+  }, [text, index, speed]);
+  return text.slice(0, index);
 }
 
 const AboutSection = () => {
@@ -28,7 +26,7 @@ const AboutSection = () => {
     {
       icon: Code2,
       title: 'Clean Code Advocate',
-      description: 'I believe in writing maintainable, well-documented code that scales with your business needs.'
+      description: 'I believe in writing maintainable, well-documented code that scales with the business needs.'
     },
     {
       icon: Zap,
@@ -36,9 +34,14 @@ const AboutSection = () => {
       description: 'Optimizing applications for speed and efficiency, ensuring the best user experience possible.'
     },
     {
+      icon: CogIcon,
+      title: 'Automation Enthusiast',
+      description: 'Passionate about automating repetitive tasks and streamlining development workflows using scripts, CI/CD pipelines and DevOps practices.'
+    },
+    {
       icon: Users,
       title: 'Team Collaboration',
-      description: 'Strong communication skills with experience leading development teams and mentoring junior developers.'
+      description: 'Strong communication skills, collaborating with development teams and mentoring junior developers.'
     },
     {
       icon: Coffee,
@@ -64,33 +67,25 @@ const AboutSection = () => {
     I'm always excited to collaborate with teams that share a passion for excellence and innovation.`
     ]);
 
-  const [current, setCurrent] = useState(0);
-  const [done, setDone] = useState(false);
-  const typed = useTypingEffect(introParagraphs[current] || '', 18);
-  const session = new ChatSession("Paraphrase the following text, dont  respond as an assistant just give me what asked :\n");
+  const [current] = useState(0);
+  const [visible, setVisible] = useState(false);
+  const typed = useTypingEffect(visible ? (introParagraphs[current] || '') : '', 18);
 
   useEffect(() => {
-    session.chat(introParagraphs[0]).then((response) => {
-      if (response) {
-        setintroParagraphs([response]);
+    const paraphraseIntro = async () => {
+      try {
+        const session = new ChatSession("Paraphrase the following text, dont respond as an assistant just give what asked :\n");
+        const response = await session.chat(introParagraphs[0]);
+        setintroParagraphs([response || introParagraphs[0]]);
+      } catch (error) {
+        console.error('Paraphrasing failed, using original text:', error);
       }
-    }).catch((e) => {
-      // Fail silently and use original text
-      console.log("Paraphrasing failed, using original text. "+e);
-    });
+    };
+
+    paraphraseIntro();
+
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !done) {
-          if (typed.length === introParagraphs[current].length && current < introParagraphs.length - 1) {
-            const timeout = setTimeout(() => {
-              setCurrent((c) => c + 1);
-            }, 500);
-            return () => clearTimeout(timeout);
-          } else if (typed.length === introParagraphs[current].length && current === introParagraphs.length - 1) {
-            setDone(true);
-          }
-        }
-      },
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
       { threshold: 0.1 }
     );
 
@@ -114,11 +109,11 @@ const AboutSection = () => {
             <div className="space-y-4">
               <h3 className="text-2xl font-semibold">Hello, I'm Zain</h3>
                 <p
-                  className="text-muted-foreground leading-relaxed min-h-[3.5em]"
+                  className="text-muted-foreground text-lg leading-relaxed min-h-[3.5em]"
                   style={{ whiteSpace: 'pre-line' }}
                 >
                   {typed}
-                  {<span className="inline-block animate-pulse">|</span>}
+                  {typed.length < (introParagraphs[current]?.length ?? 0) && <span className="inline-block animate-pulse">|</span>}
                 </p>
             </div>
 
@@ -159,8 +154,8 @@ const AboutSection = () => {
 
         {/* What I Bring */}
         <div className="mb-16">
-          <h3 className="text-2xl font-semibold text-center mb-8">What I Bring to Your Team</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h3 className="text-2xl font-semibold text-center mb-8">What I Bring to The Team</h3>
+          <div className="flex justify-center grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {highlights.map((highlight, index) => (
               <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                 <CardContent className="p-6">

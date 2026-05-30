@@ -1,7 +1,13 @@
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { ExternalLink, Award, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@radix-ui/react-dialog';
+import { DialogHeader } from './ui/dialog';
+import { ChatSession } from './GrokChat';
+import { useState } from 'react';
 
 const CertificationsSection = () => {
   const certifications = [
@@ -11,9 +17,19 @@ const CertificationsSection = () => {
       date: '2025',
       level: 'Professional',
       status: 'Active',
-      description: 'Demonstrates expertise in designing distributed systems and applications on AWS platform.',
+      description: 'Validates expertise in cyber security principles, practices, and technologies.',
       skills: ['Cyber Security', 'Cloud Security', 'Information Security', 'High Availability'],
       credentialUrl: 'https://www.linkedin.com/posts/rootzain_isc2-cc-certification-activity-7341090352134615040-CNv3?utm_source=share&utm_medium=member_desktop&rcm=ACoAACpPAfIBpqiAKKK-WrU8TUck1Q6Nl09s64s'
+    },
+     {
+      title: 'Azure AI Engineer Associate',
+      issuer: 'Microsoft',
+      date: '2026',
+      level: 'Associate',
+      status: 'In Progress',
+      description: 'Validates practical expertise in integrating Azure AI services in business apps & solutions.',
+      skills: ['Azure OpenAI', 'AI Vision', 'AI Speech', 'Cognitive Services'],
+      credentialUrl: ''
     },
     {
       title: 'React The Complete Guide',
@@ -56,6 +72,20 @@ const CertificationsSection = () => {
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
     }
+  };
+
+  const [openSummaryIndex, setOpenSummaryIndex] = useState<number | null>(null);
+  const [summary, setSummary] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSummaryClick = async (cert: typeof certifications[0], idx: number) => {
+    setOpenSummaryIndex(idx);
+    setLoading(true);
+    const session = new ChatSession();
+    const prompt = `Summarize in 2-3 lines what the certification '${cert.title}' is for and how it helps Zain as a professional. Description: ${cert.description}`;
+    const aiSummary = await session.chat(prompt);
+    setSummary(aiSummary);
+    setLoading(false);
   };
 
   return (
@@ -107,6 +137,9 @@ const CertificationsSection = () => {
                   <ExternalLink className="h-3 w-3 mr-2" />
                   View Credential
                 </Button>
+                <Button variant="link" size="sm" className="w-full mt-2" onClick={() => handleSummaryClick(cert, index)}>
+                  What does this certify?
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -124,6 +157,16 @@ const CertificationsSection = () => {
           </div>
         </div>
       </div>
+      <Dialog open={openSummaryIndex !== null} onOpenChange={() => { setOpenSummaryIndex(null); setSummary(''); }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Certificate Summary</DialogTitle>
+            <DialogDescription>
+              {loading ? 'Generating summary...' : summary}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+    </Dialog>
     </section>
   );
 }

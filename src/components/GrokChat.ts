@@ -1,6 +1,4 @@
-import { Groq } from "groq-sdk";
-
-const groq = new Groq({ apiKey: process.env.REACT_APP_GROQ_API_KEY, dangerouslyAllowBrowser: true });
+const API_BASE_URL = '/api';
 
 // Define a type for the messages
 type ChatMessage = {
@@ -73,25 +71,28 @@ export class ChatSession {
     this.model = "llama-3.3-70b-versatile"
   }
 
-  async chat(prompt: string) {
-    // 1. Add the user's new prompt to history
-    this.history.push({ role: "user", content: prompt });
+  async chat(prompt: string): Promise<string> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: prompt,
+          context: this.history[0]?.content || ''
+        }),
+      });
 
-    // 2. Send the WHOLE history to the API
-    const response = await groq.chat.completions.create({
-      model: this.model,
-      messages: this.history, // <--- This is the key to memory
-    }).catch((error) => {
-      this.model = 'openai/gpt-oss-20b';
-      console.log('Model changed ',this.model)
-      return this.chat(prompt);
-    });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-    const aiResponse = response.choices[0].message.content || "";
-
-    // 3. Add the AI's response to history so it remembers what it said
-    this.history.push({ role: "assistant", content: aiResponse });
-
-    return aiResponse;
+      const data = await response.json();
+      return data.response || 'Sorry, I could not generate a response.';
+    } catch (error) {
+      console.error('Chat API error:', error);
+      return 'Sorry, I am unable to respond right now. Please try again later.';
+    }
   }
 }

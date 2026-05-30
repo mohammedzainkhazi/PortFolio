@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Github, Linkedin, Mail, Download, MessageCircle } from 'lucide-react';
@@ -18,24 +20,20 @@ interface HeroSectionProps {
 
 // Typing animation hook (copied from AboutSection)
 function useTypingEffect(text: string, speed = 18) {
-  const [displayed, setDisplayed] = useState('');
+  const [index, setIndex] = useState(0);
   useEffect(() => {
-    setDisplayed('');
-    if (!text) return;
-    let i = 0;
-    const interval = setInterval(() => {
-      setDisplayed((prev) => prev + text[i]);
-      i++;
-      if (i >= text.length) clearInterval(interval);
-    }, speed);
-    return () => clearInterval(interval);
-  }, [text, speed]);
-  return displayed;
+    setIndex(0);
+  }, [text]);
+  useEffect(() => {
+    if (!text || index >= text.length) return;
+    const timeout = setTimeout(() => setIndex((i) => i + 1), speed);
+    return () => clearTimeout(timeout);
+  }, [text, index, speed]);
+  return text.slice(0, index);
 }
 
 const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
   const skills = ['React', 'TypeScript', 'Node.js', 'Python', 'AWS', 'Docker'];
-  // The text to animate
   const [introText, setIntroText] = useState('');
 
   useEffect(() => {
@@ -50,12 +48,14 @@ const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
         setIntroText(response || originalText);
       }
       catch(error){
-        setIntroText(originalText);
+        console.error('Error paraphrasing intro text:', error);
+        setIntroText(originalText); // Fallback to original text on error
       }
-    };
+    }
 
     paraphrase();
   }, []);
+
 
   const typedIntro = useTypingEffect(introText, 18);
 
@@ -65,13 +65,13 @@ const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 order-2 lg:order-1">
             <div className="space-y-4">
-              <Badge variant="secondary" className="inline-flex items-center">
+              <Badge variant="secondary" className="hero-badge inline-flex items-center">
                 🚀 Available for new opportunities
               </Badge>
-              <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
+              <h1 className="hero-title text-4xl md:text-6xl font-bold tracking-tight">
                 Hi, I'm <span className="text-primary">Zain</span>
               </h1>
-              <h2 className="text-2xl md:text-3xl text-muted-foreground">
+              <h2 className="hero-subtitle text-2xl md:text-3xl text-muted-foreground">
                 Software Developer Engineer
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl min-h-[6em]" style={{ whiteSpace: 'pre-line' }}>
@@ -82,22 +82,22 @@ const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
 
             <div className="flex flex-wrap gap-2">
               {skills.map((skill) => (
-                <Badge key={skill} variant="outline">
+                <Badge key={skill} variant="outline" className="hero-skill">
                   {skill}
                 </Badge>
               ))}
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black" onClick={()=>
+              <Button size="lg" className="hero-action flex items-center gap-2 bg-black text-white dark:bg-white dark:text-black" onClick={()=>
                 downloadPDFFromStorage("Resume", "Resume.pdf")}>
                 <Download className="h-4 w-4" />
                 Download Resume
               </Button>
-              <Button 
-                variant="outline" 
-                size="lg" 
-                className="flex items-center gap-2"
+              <Button
+                variant="outline"
+                size="lg"
+                className="hero-action flex items-center gap-2"
                 onClick={onChatOpen}
               >
                 <MessageCircle className="h-4 w-4" />
@@ -105,7 +105,7 @@ const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
               </Button>
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="hero-action flex items-center gap-6">
               <Button variant="ghost" size="sm" className="p-2">
                 <Github className="h-5 w-5" />
                 <span className="sr-only">GitHub</span>
@@ -121,10 +121,10 @@ const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
             </div>
           </div>
 
-          <div className="relative order-1 lg:order-2">
+          <div className="hero-image relative order-1 lg:order-2">
             <div className="relative z-10 sm:mt-5 lg:mt-0">
               <ImageWithFallback
-                src={darkMode ? picturebw : picture}
+                src={darkMode ? picturebw.src : picture.src}
                 alt="Developer workspace"
                 className="rounded-2xl w-full h-[400px] sm:h-[300px] md:h-[500px] object-cover"
               />
