@@ -193,6 +193,12 @@ html {
   font-size: var(--font-size);
 }
 
+/* Name shimmer animation */
+@keyframes shimmer {
+  0%   { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
 /* Space / galaxy theme utilities */
 .dark body {
   background: radial-gradient(ellipse at 20% 50%, #0d0b2a 0%, #020208 60%),
