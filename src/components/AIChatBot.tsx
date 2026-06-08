@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
@@ -44,7 +46,7 @@ const AIChatBot = ({ isOpen, onClose }: AIChatBotProps) => {
   ];
 
   const getAIResponse = async (question: string): Promise<string> => {
-    return await session.current.chat(question);
+    return await session.current!.chat(question);
   };
 
   const sendMessage = async (content: string) => {
@@ -88,8 +90,8 @@ const AIChatBot = ({ isOpen, onClose }: AIChatBotProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 dark:bg-background/500 backdrop-blur-sm border border-border">
-      <Card className="w-full max-w-2xl max-h-[90vh] flex flex-col bg-white dark:bg-black">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-lg">
+      <Card className="w-full max-w-2xl max-h-[90vh] flex flex-col">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 border-b shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
@@ -192,7 +194,7 @@ const AIChatBot = ({ isOpen, onClose }: AIChatBotProps) => {
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Ask me anything about Zain..."
                 onKeyPress={(e) => e.key === 'Enter' && sendMessage(inputValue)}
-                className="flex-1 text-black"
+                className="flex-1"
               />
               <Button 
                 onClick={() => sendMessage(inputValue)}

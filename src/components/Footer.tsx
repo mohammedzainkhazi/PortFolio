@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from './ui/button';
 import { Separator } from './ui/separator';
 import { Github, Linkedin, Mail, Heart, ArrowUp, Instagram } from 'lucide-react';

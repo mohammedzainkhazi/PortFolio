@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Progress } from './ui/progress';

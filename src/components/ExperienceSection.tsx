@@ -1,3 +1,5 @@
+'use client';
+
 import { Card, CardContent } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
@@ -13,10 +15,11 @@ const ExperienceSection = () => {
       type: 'Full-Time',
       description: 'Full-Stack Engineer driving the delivery of complex software solutions.',
       achievements: [
-        'Reduced application load time by 40% through optimization',
-        'Led team of 5 developers on flagship product redesign',
-        'Implemented CI/CD pipeline reducing deployment time by 60%',
-        'Introduced TypeScript reducing bugs by 30%'
+          'Improved asset tracking efficiency by developing a cross-platform React Native tracking app that replaced costly beacon scanners.',
+          'Eliminated annual vendor licensing fees by spearheading the development of an in-house NextJS PWA to replace a legacy product.',
+          'Reduced cyclomatic complexity and resolved critical security vulnerabilities across 3 projects by integrating automated scanning into CI pipelines.',
+          'Reduced infrastructure costs and increased data pipeline reliability by replacing Databricks dependencies with AVEVA PI System’s native tooling.',
+          'Recognized with the Shell SEAT Superstar Award (Q4 2025) for outstanding contributions to project delivery and innovation.'
       ],
       technologies: ['React', 'Node.js', 'AWS', 'PostgreSQL', 'Docker', 'Kubernetes'],
       website: 'https://techcorp.com'
