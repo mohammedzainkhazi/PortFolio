@@ -199,36 +199,104 @@ html {
   100% { background-position: -200% center; }
 }
 
-/* Space / galaxy theme utilities */
+/* Deep Space Metallic Palette & Ultra-Sleek Glassmorphism */
+
 .dark body {
-  background: radial-gradient(ellipse at 20% 50%, #0d0b2a 0%, #020208 60%),
-              radial-gradient(ellipse at 80% 20%, #0a0520 0%, transparent 50%);
+  background: #020208;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 60%),
+    radial-gradient(circle at 50% 100%, rgba(2, 2, 8, 1) 0%, #020208 100%);
+  background-attachment: fixed;
 }
 
-.glow-text {
-  text-shadow: 0 0 20px rgba(167, 139, 250, 0.6), 0 0 40px rgba(167, 139, 250, 0.3);
+/* Elegant Metallic Silver & White Text Gradients */
+.text-gradient-cosmic {
+  background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 50%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.glow-border {
-  box-shadow: 0 0 12px rgba(167, 139, 250, 0.4), inset 0 0 12px rgba(167, 139, 250, 0.05);
+.text-gradient-gold {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-@keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px rgba(167, 139, 250, 0.4); }
-  50%       { box-shadow: 0 0 20px rgba(167, 139, 250, 0.8), 0 0 40px rgba(99, 102, 241, 0.3); }
+.text-gradient-silver {
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.dark .glow-pulse {
-  animation: pulse-glow 3s ease-in-out infinite;
+/* Clean Translucent Glassmorphism Cards */
+.glass-interstellar {
+  background: rgba(10, 11, 20, 0.55);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Nebula blobs behind content */
+.dark .glass-interstellar {
+  background: rgba(10, 11, 20, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-interstellar-hover:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.7), 0 0 20px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Event Horizon Pulse */
+.glow-event-horizon {
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.1), inset 0 0 25px rgba(255, 255, 255, 0.05);
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 40s linear infinite;
+}
+
+/* Shiny Button Sweep */
+.btn-shiny {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shiny::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    60deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 70%
+  );
+  transform: rotate(30deg) translateX(-100%);
+  transition: transform 0.8s ease;
+}
+
+.btn-shiny:hover::after {
+  transform: rotate(30deg) translateX(100%);
+}
+
+/* Deep space subtle background overlays */
 .dark main::before,
 .dark main::after {
   content: '';
   position: fixed;
   border-radius: 50%;
-  filter: blur(120px);
+  filter: blur(160px);
   pointer-events: none;
   z-index: 0;
 }
@@ -236,21 +304,23 @@ html {
 .dark main::before {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(88, 28, 135, 0.18) 0%, transparent 70%);
-  top: 10%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
+  top: 5%;
   left: -10%;
 }
 
 .dark main::after {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
-  bottom: 20%;
+  width: 550px;
+  height: 550px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+  bottom: 15%;
   right: -5%;
 }
 
-/* Ensure content sits above canvas and nebula blobs */
 main section {
   position: relative;
   z-index: 1;
 }
+
+
+

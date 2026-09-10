@@ -58,10 +58,10 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "next/core-web-vitals"
     ]
   },
+
   "browserslist": {
     "production": [
       ">0.2%",
