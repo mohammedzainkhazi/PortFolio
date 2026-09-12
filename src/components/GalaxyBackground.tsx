@@ -27,6 +27,17 @@ interface InfallParticle {
   length: number;
 }
 
+// Module-scope image pre-loading for instant page-load rendering
+const img1 = typeof window !== 'undefined' ? new Image() : ({} as HTMLImageElement);
+const img2 = typeof window !== 'undefined' ? new Image() : ({} as HTMLImageElement);
+const img3 = typeof window !== 'undefined' ? new Image() : ({} as HTMLImageElement);
+
+if (typeof window !== 'undefined') {
+  img1.src = heroImg.src;
+  img2.src = horizonImg.src;
+  img3.src = singularityImg.src;
+}
+
 export default function GalaxyBackground({ darkMode = true }: { darkMode?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const darkRef = useRef(darkMode);
@@ -37,6 +48,7 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
 
     let W = 0, H = 0;
     let stars: Star[] = [];
@@ -49,25 +61,6 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
     let scrollSpeed = 0;
     let raf: number;
     let t = 0;
-
-    // Load 3-stage Gargantua entry transition images with instant cache check
-    let img1Loaded = false, img2Loaded = false, img3Loaded = false;
-
-    const img1 = new Image();
-    img1.onload = () => { img1Loaded = true; };
-    img1.src = heroImg.src;
-    if (img1.complete) img1Loaded = true;
-
-    const img2 = new Image();
-    img2.onload = () => { img2Loaded = true; };
-    img2.src = horizonImg.src;
-    if (img2.complete) img2Loaded = true;
-
-    const img3 = new Image();
-    img3.onload = () => { img3Loaded = true; };
-    img3.src = singularityImg.src;
-    if (img3.complete) img3Loaded = true;
-
 
     const createComet = (speedBoost = 1): Comet => {
       const angle = Math.PI * 0.25 + (Math.random() - 0.5) * 0.3;
@@ -85,14 +78,13 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
 
     const createInfallParticle = (): InfallParticle => ({
       angle: Math.random() * Math.PI * 2,
-      dist: Math.random() * 0.5 + 0.4, // Percentage from center
+      dist: Math.random() * 0.5 + 0.4,
       speed: Math.random() * 0.008 + 0.004,
       size: Math.random() * 2 + 1,
       opacity: Math.random() * 0.8 + 0.2,
       length: Math.random() * 40 + 20,
     });
 
-    // Persistent offscreen canvas instance to eliminate DOM allocation & GC thrashing in 60fps loop
     const offscreenCanvas = document.createElement('canvas');
     const offscreenCtx = offscreenCanvas.getContext('2d');
 
@@ -111,19 +103,10 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
       canvas.style.width = `${W}px`;
       canvas.style.height = `${H}px`;
 
-      // Set offscreen canvas to max potential size ONCE to prevent buffer-clear flickering
-      const maxOffW = Math.floor(W * (isMobile ? 2.5 : 4.0) * dpr);
-      const maxOffH = Math.floor(H * (isMobile ? 2.5 : 4.0) * dpr);
-      if (offscreenCanvas.width < maxOffW || offscreenCanvas.height < maxOffH) {
-        offscreenCanvas.width = maxOffW;
-        offscreenCanvas.height = maxOffH;
-      }
-
       ctx.scale(dpr, dpr);
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = isMobile ? 'medium' : 'high';
 
-      // Mobile adaptive particle scaling for ultra-fast 60fps scrolling
       const starCount = isMobile ? 130 : 340;
       stars = Array.from({ length: starCount }, () => ({
         x: Math.random() * W,
@@ -139,7 +122,6 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
     };
 
     const draw = () => {
-      // Read current scroll position without layout trashing
       targetScrollY = window.scrollY;
 
       ctx.clearRect(0, 0, W, H);
@@ -147,7 +129,6 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
       ctx.imageSmoothingQuality = isMobile ? 'medium' : 'high';
       t += 0.004;
 
-      // Smooth mouse & scroll lerp for silky 60fps parallax
       mouse.x += (mouse.targetX - mouse.x) * 0.05;
       mouse.y += (mouse.targetY - mouse.y) * 0.05;
 
@@ -155,7 +136,6 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
       scrollSpeed = Math.abs(smoothScrollY - lastScrollY);
       lastScrollY = smoothScrollY;
 
-      // Calculate scroll progress (0 at top, 1 at bottom)
       const maxScroll = Math.max(1, (document.documentElement.scrollHeight || document.body.scrollHeight) - H);
       const progress = Math.min(1, Math.max(0, smoothScrollY / maxScroll));
 
@@ -165,7 +145,7 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
       const centerX = W * 0.5 + offsetX * 0.5;
       const centerY = H * 0.50 + offsetY * 0.5;
 
-      // --- 1. Draw Deep Space Stars with Relativistic Warp ---
+      // --- 1. Draw Deep Space Stars ---
       for (const s of stars) {
         const starSpeedMult = 1 + progress * 2.0;
         const px = (s.x + offsetX * s.z + W) % W;
@@ -179,7 +159,7 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
         ctx.fill();
       }
 
-      // --- 2. Draw Shooting Star Comets with Gravitational Speed Surge ---
+      // --- 2. Draw Shooting Star Comets ---
       if (dim > 0.4) {
         const cometSpeedMult = 1.0 + progress * 3.5 + (scrollSpeed > 3 ? 0.8 : 0);
         const maxCometCount = isMobile ? Math.floor(3 + progress * 4) : Math.floor(5 + progress * 8);
@@ -243,31 +223,27 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
           alpha3 = Math.max(0, 1 - (progress - 0.82) / 0.15);
         }
 
-        // Ultra-clean high-speed layer renderer
+        // Bulletproof high-speed layer renderer with instant image readiness check
         const drawLayer = (imageObj: HTMLImageElement, layerAlpha: number, layerZoom: number, rotationAngle = 0) => {
-          if (layerAlpha <= 0.01 || !offscreenCtx) return;
+          if (layerAlpha <= 0.01 || !offscreenCtx || !imageObj || !imageObj.complete || imageObj.naturalWidth === 0) return;
 
-          ctx.save();
           const imgW = baseW * layerZoom;
           const imgH = imgW / aspect;
           const imgX = centerX - imgW / 2;
           const imgY = centerY - imgH / 2;
-          const radius = Math.max(imgW, imgH) * 0.48;
-
           const w = Math.ceil(imgW);
           const h = Math.ceil(imgH);
+
+          if (w <= 0 || h <= 0) return;
 
           if (offscreenCanvas.width !== w || offscreenCanvas.height !== h) {
             offscreenCanvas.width = w;
             offscreenCanvas.height = h;
           }
 
-          offscreenCtx.setTransform(1, 0, 0, 1, 0, 0);
-          offscreenCtx.clearRect(0, 0, w, h);
-          offscreenCtx.imageSmoothingEnabled = true;
-          offscreenCtx.imageSmoothingQuality = isMobile ? 'medium' : 'high';
-
           offscreenCtx.save();
+          offscreenCtx.clearRect(0, 0, w, h);
+
           if (rotationAngle !== 0) {
             offscreenCtx.translate(w / 2, h / 2);
             offscreenCtx.rotate(rotationAngle);
@@ -278,50 +254,46 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
 
           // Soft Radial Vignette Mask
           const grad = offscreenCtx.createRadialGradient(
-            w / 2, h / 2, radius * 0.3,
-            w / 2, h / 2, radius
+            w / 2, h / 2, Math.min(w, h) * 0.15,
+            w / 2, h / 2, Math.max(w, h) * 0.5
           );
           grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
-          grad.addColorStop(0.75, 'rgba(0, 0, 0, 0.85)');
-          grad.addColorStop(0.94, 'rgba(0, 0, 0, 0.25)');
+          grad.addColorStop(0.80, 'rgba(0, 0, 0, 0.90)');
+          grad.addColorStop(0.96, 'rgba(0, 0, 0, 0.30)');
           grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
+          offscreenCtx.save();
           offscreenCtx.globalCompositeOperation = 'destination-in';
           offscreenCtx.fillStyle = grad;
-          offscreenCtx.beginPath();
-          offscreenCtx.ellipse(w / 2, h / 2, radius, radius * 0.7, 0, 0, Math.PI * 2);
-          offscreenCtx.fill();
+          offscreenCtx.fillRect(0, 0, w, h);
+          offscreenCtx.restore();
 
+          ctx.save();
           ctx.globalAlpha = layerAlpha * dim;
           ctx.drawImage(offscreenCanvas, imgX, imgY, imgW, imgH);
-
           ctx.restore();
         };
 
-
-
-
-
         // Render Stage 1: Approach View (Zooming up to 3.5x)
-        if ((img1Loaded || img1.complete) && alpha1 > 0) {
+        if (alpha1 > 0) {
           const zoom1 = 1.0 + Math.pow(progress, 1.2) * 3.5;
           drawLayer(img1, alpha1, zoom1);
         }
 
         // Render Stage 2: Event Horizon View (Zooming up to 5.5x)
-        if ((img2Loaded || img2.complete) && alpha2 > 0) {
+        if (alpha2 > 0) {
           const zoom2 = 1.0 + Math.pow(Math.max(0, progress - 0.15), 1.25) * 5.5;
           drawLayer(img2, alpha2, zoom2);
         }
 
         // Render Stage 3: Singularity Core Dive -> Empty Void (Deep zoom up to 9.5x!)
-        if ((img3Loaded || img3.complete) && alpha3 > 0) {
+        if (alpha3 > 0) {
           const zoom3 = 1.0 + Math.pow(Math.max(0, progress - 0.45), 1.35) * 9.5;
           const rot3 = t * 0.12 + (progress - 0.45) * 0.6;
           drawLayer(img3, alpha3, zoom3, rot3);
         }
-
       }
+
 
 
       // --- 4. Relativistic Singularity Infall Particles ($p > 0.4$) ---
