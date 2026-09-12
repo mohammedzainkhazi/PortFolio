@@ -1,136 +1,30 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import heroImg from '../images/black_hole_hero.jpg';
+import horizonImg from '../images/black_hole_horizon.jpg';
+import singularityImg from '../images/black_hole_singularity.jpg';
 
 interface Star {
   x: number; y: number; z: number;
   r: number; opacity: number; twinkle: number;
 }
 
-interface Traveller {
+interface Comet {
   x: number; y: number;
-  tx: number; ty: number;
+  length: number;
   speed: number;
-  r: number; opacity: number;
-  progress: number;
-  trail: { x: number; y: number }[];
+  dx: number; dy: number;
+  opacity: number;
 }
 
-// Each planet is pinned at a scroll-depth (scrollAt = pageY to appear)
-interface Planet {
-  x: number;        // 0–1 fraction of W
-  scrollAt: number; // pageY at which it's centered
-  r: number;
-  color1: string;   // base color
-  color2: string;   // highlight
-  ringColor: string;
-  hasRing: boolean;
-  tilt: number;
-}
-
-function makeTraveller(W: number, H: number): Traveller {
-  return {
-    x: Math.random() * W,
-    y: Math.random() * H,
-    tx: Math.random() * W,
-    ty: Math.random() * H,
-    speed: Math.random() * 0.003 + 0.001,
-    r: Math.random() * 1.2 + 0.4,
-    opacity: Math.random() * 0.7 + 0.3,
-    progress: 0,
-    trail: [],
-  };
-}
-
-// Fixed planet definitions — scroll position is set in init() relative to page height
-const PLANET_DEFS: Omit<Planet, 'scrollAt' | 'x'>[] = [
-  { r: 42, color1: '#c2a46d', color2: '#f5b078', ringColor: 'rgba(180,140,255,0.35)', hasRing: true,  tilt: 0.42 },
-  { r: 28, color1: '#2a6a9e', color2: '#5ab0e0', ringColor: '',                        hasRing: false, tilt: 0 },
-  { r: 55, color1: '#c4622d', color2: '#e88a50', ringColor: 'rgba(230,160,80,0.3)',    hasRing: true,  tilt: 0.28 },
-  { r: 22, color1: '#3a8a4a', color2: '#72d48a', ringColor: '',                        hasRing: false, tilt: 0 },
-];
-
-function drawPlanet(
-  ctx: CanvasRenderingContext2D,
-  px: number, py: number,
-  planet: Planet,
-  alpha: number,
-  t: number
-) {
-  const { r, color1, color2, hasRing, ringColor, tilt } = planet;
-
-  ctx.save();
-  ctx.globalAlpha = alpha;
-
-  // Atmospheric glow
-  const glow = ctx.createRadialGradient(px, py, r * 0.6, px, py, r * 2.2);
-  glow.addColorStop(0, color2 + '44');
-  glow.addColorStop(1, 'rgba(0,0,0,0)');
-  ctx.beginPath();
-  ctx.arc(px, py, r * 2.2, 0, Math.PI * 2);
-  ctx.fillStyle = glow;
-  ctx.fill();
-
-  // Planet body
-  const body = ctx.createRadialGradient(px - r * 0.3, py - r * 0.3, r * 0.1, px, py, r);
-  body.addColorStop(0, color2);
-  body.addColorStop(0.6, color1);
-  body.addColorStop(1, '#050510');
-  ctx.beginPath();
-  ctx.arc(px, py, r, 0, Math.PI * 2);
-  ctx.fillStyle = body;
-  ctx.fill();
-
-  // Surface shimmer bands
-  ctx.save();
-  ctx.beginPath();
-  ctx.arc(px, py, r, 0, Math.PI * 2);
-  ctx.clip();
-  for (let i = 0; i < 3; i++) {
-    const by = py - r * 0.6 + i * r * 0.55 + Math.sin(t * 0.3 + i) * 2;
-    ctx.fillStyle = `rgba(255,255,255,${0.04 - i * 0.01})`;
-    ctx.fillRect(px - r, by, r * 2, r * 0.18);
-  }
-  ctx.restore();
-
-  // Ring
-  if (hasRing) {
-    ctx.save();
-    ctx.translate(px, py);
-    ctx.rotate(tilt);
-    ctx.scale(1, 0.3);
-    // back half (behind planet)
-    ctx.beginPath();
-    ctx.arc(0, 0, r * 1.85, Math.PI, Math.PI * 2);
-    ctx.strokeStyle = ringColor;
-    ctx.lineWidth = r * 0.38;
-    ctx.stroke();
-    ctx.restore();
-
-    // redraw planet to cover front ring overlap
-    const body2 = ctx.createRadialGradient(px - r * 0.3, py - r * 0.3, r * 0.1, px, py, r);
-    body2.addColorStop(0, color2);
-    body2.addColorStop(0.6, color1);
-    body2.addColorStop(1, '#050510');
-    ctx.beginPath();
-    ctx.arc(px, py, r, 0, Math.PI * 2);
-    ctx.fillStyle = body2;
-    ctx.fill();
-
-    // front half of ring (in front of planet)
-    ctx.save();
-    ctx.translate(px, py);
-    ctx.rotate(tilt);
-    ctx.scale(1, 0.3);
-    ctx.beginPath();
-    ctx.arc(0, 0, r * 1.85, 0, Math.PI);
-    ctx.strokeStyle = ringColor;
-    ctx.lineWidth = r * 0.38;
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  ctx.restore();
+interface InfallParticle {
+  angle: number;
+  dist: number;
+  speed: number;
+  size: number;
+  opacity: number;
+  length: number;
 }
 
 export default function GalaxyBackground({ darkMode = true }: { darkMode?: boolean }) {
@@ -146,137 +40,324 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
 
     let W = 0, H = 0;
     let stars: Star[] = [];
-    let travellers: Traveller[] = [];
-    let planets: Planet[] = [];
-    let mouse = { x: 0, y: 0 };
-    let scrollY = 0;
+    let comets: Comet[] = [];
+    let infallParticles: InfallParticle[] = [];
+    let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+    let targetScrollY = 0;
+    let smoothScrollY = 0;
+    let lastScrollY = 0;
+    let scrollSpeed = 0;
     let raf: number;
     let t = 0;
 
+    // Load 3-stage Gargantua entry transition images
+    const img1 = new Image(); img1.src = heroImg.src;
+    const img2 = new Image(); img2.src = horizonImg.src;
+    const img3 = new Image(); img3.src = singularityImg.src;
+
+    let img1Loaded = false, img2Loaded = false, img3Loaded = false;
+    img1.onload = () => { img1Loaded = true; };
+    img2.onload = () => { img2Loaded = true; };
+    img3.onload = () => { img3Loaded = true; };
+
+    const createComet = (speedBoost = 1): Comet => {
+      const angle = Math.PI * 0.25 + (Math.random() - 0.5) * 0.3;
+      const baseSpd = (Math.random() * 8 + 6 + scrollSpeed * 0.4) * speedBoost;
+      return {
+        x: Math.random() * W * 1.3 - W * 0.15,
+        y: -60,
+        length: (Math.random() * 90 + 50) * Math.min(2.5, speedBoost),
+        speed: baseSpd,
+        dx: Math.cos(angle) * baseSpd,
+        dy: Math.sin(angle) * baseSpd,
+        opacity: Math.random() * 0.7 + 0.3,
+      };
+    };
+
+    const createInfallParticle = (): InfallParticle => ({
+      angle: Math.random() * Math.PI * 2,
+      dist: Math.random() * 0.5 + 0.4, // Percentage from center
+      speed: Math.random() * 0.008 + 0.004,
+      size: Math.random() * 2 + 1,
+      opacity: Math.random() * 0.8 + 0.2,
+      length: Math.random() * 40 + 20,
+    });
+
+    let dpr = 1;
+
     const init = () => {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      W = window.innerWidth;
+      H = window.innerHeight;
 
-      const pageH = document.body.scrollHeight || H * 4;
-      const xPositions = [0.12, 0.82, 0.68, 0.22];
-      planets = PLANET_DEFS.map((def, i) => ({
-        ...def,
-        x: xPositions[i],
-        // spread planets evenly through the scroll depth, starting after first viewport
-        scrollAt: H * 0.6 + (pageH - H) * (i / (PLANET_DEFS.length - 1 || 1)) * 0.85,
-      }));
+      canvas.width = Math.floor(W * dpr);
+      canvas.height = Math.floor(H * dpr);
+      canvas.style.width = `${W}px`;
+      canvas.style.height = `${H}px`;
 
-      const count = W < 768 ? 120 : 220;
-      stars = Array.from({ length: count }, () => ({
+      ctx.scale(dpr, dpr);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+
+      // Deep space stars
+      const starCount = W < 768 ? 200 : 380;
+      stars = Array.from({ length: starCount }, () => ({
         x: Math.random() * W,
         y: Math.random() * H,
-        z: Math.random(),
-        r: Math.random() * 1.6 + 0.2,
+        z: Math.random() * 0.9 + 0.1,
+        r: Math.random() * 1.5 + 0.3,
         opacity: Math.random() * 0.6 + 0.2,
         twinkle: Math.random() * Math.PI * 2,
       }));
-      travellers = Array.from({ length: 12 }, () => makeTraveller(W, H));
+
+      comets = Array.from({ length: 5 }, () => createComet());
+      infallParticles = Array.from({ length: 50 }, () => createInfallParticle());
     };
 
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
-      t += 0.006;
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      t += 0.004;
 
-      const mx = mouse.x / W - 0.5;
-      const my = mouse.y / H - 0.5;
+      // Smooth mouse & scroll lerp for silky 60fps parallax
+      mouse.x += (mouse.targetX - mouse.x) * 0.04;
+      mouse.y += (mouse.targetY - mouse.y) * 0.04;
+
+      smoothScrollY += (targetScrollY - smoothScrollY) * 0.08;
+      scrollSpeed = Math.abs(smoothScrollY - lastScrollY);
+      lastScrollY = smoothScrollY;
+
+      // Calculate scroll progress (0 at top, 1 at bottom)
+      const maxScroll = Math.max(1, (document.documentElement.scrollHeight || document.body.scrollHeight) - H);
+      const progress = Math.min(1, Math.max(0, smoothScrollY / maxScroll));
+
       const dim = darkRef.current ? 1 : 0.25;
+      const offsetX = (mouse.x / W - 0.5) * 45;
+      const offsetY = (mouse.y / H - 0.5) * 45;
+      const centerX = W * 0.5 + offsetX * 0.5;
+      const centerY = H * 0.50 + offsetY * 0.5;
 
-      // Planets — appear/disappear based on scroll position
-      if (dim > 0.5) {
-        for (const p of planets) {
-          // distance from center of screen to this planet's scroll position
-          const dy = p.scrollAt - (scrollY + H / 2);
-          const fadeRange = H * 0.55;
-          if (Math.abs(dy) > fadeRange) continue;
-          const alpha = 1 - Math.abs(dy) / fadeRange;
-          const px = p.x * W;
-          const py = H / 2 + dy * 0.18; // slight parallax
-          drawPlanet(ctx, px, py, p, alpha, t);
+
+      // --- 1. Draw Deep Space Stars with Relativistic Warp ---
+      for (const s of stars) {
+        const starSpeedMult = 1 + progress * 2.0;
+        const px = (s.x + offsetX * s.z + W) % W;
+        const py = (s.y + offsetY * s.z + smoothScrollY * s.z * 0.1 * starSpeedMult) % H;
+        const tw = 0.5 + 0.5 * Math.sin(t * 1.6 + s.twinkle);
+        const alpha = s.opacity * (0.5 + 0.5 * tw) * Math.max(0.1, 1 - progress * 0.8) * dim;
+
+        ctx.beginPath();
+        ctx.arc(px, py, s.r * (1 + progress * 0.6), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(226, 232, 240, ${alpha})`;
+        ctx.fill();
+      }
+
+      // --- 2. Draw Shooting Star Comets with Gravitational Speed Surge ---
+      if (dim > 0.4) {
+        const cometSpeedMult = 1.0 + progress * 4.0 + (scrollSpeed > 3 ? 0.8 : 0);
+        const maxCometCount = Math.floor(5 + progress * 9);
+
+        if (comets.length < maxCometCount && Math.random() < 0.15) {
+          comets.push(createComet(cometSpeedMult));
+        }
+
+        for (let i = comets.length - 1; i >= 0; i--) {
+          const c = comets[i];
+          c.x += c.dx * (1 + progress * 0.9);
+          c.y += c.dy * (1 + progress * 0.9);
+
+          const alpha = c.opacity * dim;
+          const currentLength = c.length * (1 + progress * 1.2);
+          const tailX = c.x - (c.dx / c.speed) * currentLength;
+          const tailY = c.y - (c.dy / c.speed) * currentLength;
+
+          const grad = ctx.createLinearGradient(c.x, c.y, tailX, tailY);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+          grad.addColorStop(0.3, `rgba(226, 232, 240, ${alpha * 0.7})`);
+          grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+          ctx.beginPath();
+          ctx.moveTo(c.x, c.y);
+          ctx.lineTo(tailX, tailY);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.8 + progress * 1.5;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+
+          if (c.y > H + 120 || c.x > W + 120) {
+            comets[i] = createComet(cometSpeedMult);
+          }
         }
       }
 
-      // Static stars
-      for (const s of stars) {
-        const px = s.x + mx * s.z * 40;
-        const py = s.y + my * s.z * 40 + scrollY * s.z * 0.15;
-        const tw = 0.5 + 0.5 * Math.sin(t * 1.4 + s.twinkle);
-        const alpha = s.opacity * (0.6 + 0.4 * tw) * dim;
+      // --- 3. Render 3-Stage Dynamic Gargantua Entry Engine ---
+      if (dim > 0.3) {
+        const aspect = 16 / 9;
+        const baseW = Math.max(W * 1.15, H * aspect * 1.15);
 
-        if (s.z > 0.6) {
-          const grad = ctx.createRadialGradient(px, py, 0, px, py, s.r * 3);
-          grad.addColorStop(0, `rgba(200, 210, 255, ${alpha})`);
-          grad.addColorStop(1, 'rgba(0,0,0,0)');
+        // Compute 3-Stage Cross-Fade Opacities with Scroll-End Void Transition
+        let alpha1 = 1;
+        if (progress > 0.25) {
+          alpha1 = Math.max(0, 1 - (progress - 0.25) / 0.20);
+        }
+
+        let alpha2 = 0;
+        if (progress >= 0.18 && progress <= 0.40) {
+          alpha2 = (progress - 0.18) / 0.22;
+        } else if (progress > 0.40 && progress <= 0.60) {
+          alpha2 = 1;
+        } else if (progress > 0.60 && progress <= 0.78) {
+          alpha2 = Math.max(0, 1 - (progress - 0.60) / 0.18);
+        }
+
+        let alpha3 = 0;
+        if (progress >= 0.50 && progress <= 0.82) {
+          alpha3 = Math.min(1, (progress - 0.50) / 0.25);
+        } else if (progress > 0.82) {
+          alpha3 = Math.max(0, 1 - (progress - 0.82) / 0.15);
+        }
+
+        // Helper function to render high-resolution masked layer
+        const drawLayer = (imageObj: HTMLImageElement, layerAlpha: number, layerZoom: number, rotationAngle = 0) => {
+          if (layerAlpha <= 0.01) return;
+
+          ctx.save();
+          const imgW = baseW * layerZoom;
+          const imgH = imgW / aspect;
+          const imgX = centerX - imgW / 2;
+          const imgY = centerY - imgH / 2;
+          const radius = Math.max(imgW, imgH) * 0.48;
+
+          // Native DPR scaling on mask canvas for crisp 8K resolution
+          const maskCanvas = document.createElement('canvas');
+          maskCanvas.width = Math.floor(imgW * dpr);
+          maskCanvas.height = Math.floor(imgH * dpr);
+          const maskCtx = maskCanvas.getContext('2d');
+
+          if (maskCtx) {
+            maskCtx.scale(dpr, dpr);
+            maskCtx.imageSmoothingEnabled = true;
+            maskCtx.imageSmoothingQuality = 'high';
+
+            maskCtx.save();
+            if (rotationAngle !== 0) {
+              maskCtx.translate(imgW / 2, imgH / 2);
+              maskCtx.rotate(rotationAngle);
+              maskCtx.translate(-imgW / 2, -imgH / 2);
+            }
+            maskCtx.drawImage(imageObj, 0, 0, imgW, imgH);
+            maskCtx.restore();
+
+            // Soft Radial Vignette
+            const grad = maskCtx.createRadialGradient(
+              imgW / 2, imgH / 2, radius * 0.3,
+              imgW / 2, imgH / 2, radius
+            );
+            grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+            grad.addColorStop(0.75, 'rgba(0, 0, 0, 0.85)');
+            grad.addColorStop(0.94, 'rgba(0, 0, 0, 0.25)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+            maskCtx.globalCompositeOperation = 'destination-in';
+            maskCtx.fillStyle = grad;
+            maskCtx.beginPath();
+            maskCtx.ellipse(imgW / 2, imgH / 2, radius, radius * 0.7, 0, 0, Math.PI * 2);
+            maskCtx.fill();
+
+            ctx.globalAlpha = layerAlpha * dim;
+            ctx.drawImage(maskCanvas, imgX, imgY, imgW, imgH);
+          }
+          ctx.restore();
+        };
+
+
+        // Render Stage 1: Approach View (Zooming up to 3.5x)
+        if (img1Loaded && alpha1 > 0) {
+          const zoom1 = 1.0 + Math.pow(progress, 1.2) * 3.5;
+          drawLayer(img1, alpha1, zoom1);
+        }
+
+        // Render Stage 2: Event Horizon View (Zooming up to 5.5x)
+        if (img2Loaded && alpha2 > 0) {
+          const zoom2 = 1.0 + Math.pow(Math.max(0, progress - 0.15), 1.25) * 5.5;
+          drawLayer(img2, alpha2, zoom2);
+        }
+
+        // Render Stage 3: Singularity Core Dive -> Empty Void (Deep zoom up to 9.5x!)
+        if (img3Loaded && alpha3 > 0) {
+          const zoom3 = 1.0 + Math.pow(Math.max(0, progress - 0.45), 1.35) * 9.5;
+          const rot3 = t * 0.12 + (progress - 0.45) * 0.6;
+          drawLayer(img3, alpha3, zoom3, rot3);
+        }
+      }
+
+
+      // --- 4. Relativistic Singularity Infall Particles ($p > 0.4$) ---
+      if (progress > 0.4 && dim > 0.3) {
+        ctx.save();
+        const maxDist = Math.max(W, H) * 0.6;
+        const particleAlpha = Math.min(1, (progress - 0.4) / 0.4) * dim;
+
+        for (const p of infallParticles) {
+          p.dist -= p.speed * (1 + progress * 2);
+          p.angle += 0.003 * (1 + progress * 2);
+
+          if (p.dist < 0.05) {
+            p.dist = Math.random() * 0.4 + 0.5;
+            p.angle = Math.random() * Math.PI * 2;
+          }
+
+          const currentDist = p.dist * maxDist;
+          const tailDist = currentDist + p.length * (1 + progress * 1.5);
+
+          const headX = centerX + Math.cos(p.angle) * currentDist;
+          const headY = centerY + Math.sin(p.angle) * currentDist;
+          const tailX = centerX + Math.cos(p.angle) * tailDist;
+          const tailY = centerY + Math.sin(p.angle) * tailDist;
+
+          const grad = ctx.createLinearGradient(headX, headY, tailX, tailY);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${p.opacity * particleAlpha})`);
+          grad.addColorStop(0.4, `rgba(226, 232, 240, ${p.opacity * particleAlpha * 0.6})`);
+          grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
           ctx.beginPath();
-          ctx.arc(px, py, s.r * 3, 0, Math.PI * 2);
-          ctx.fillStyle = grad;
+          ctx.moveTo(headX, headY);
+          ctx.lineTo(tailX, tailY);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = p.size * (1 + progress * 0.8);
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
+
+        // Singularity Energy Core Glow
+        if (progress > 0.65) {
+          const coreGlowRadius = (progress - 0.65) * 180;
+          const coreGrad = ctx.createRadialGradient(
+            centerX, centerY, 0,
+            centerX, centerY, coreGlowRadius
+          );
+          coreGrad.addColorStop(0, `rgba(255, 255, 255, ${(progress - 0.65) * 0.4 * dim})`);
+          coreGrad.addColorStop(0.5, `rgba(226, 232, 240, ${(progress - 0.65) * 0.2 * dim})`);
+          coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, coreGlowRadius, 0, Math.PI * 2);
+          ctx.fillStyle = coreGrad;
           ctx.fill();
         }
 
-        ctx.beginPath();
-        ctx.arc(px, py, s.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(210, 220, 255, ${alpha})`;
-        ctx.fill();
-      }
-
-      // Travelling stars
-      for (let i = 0; i < travellers.length; i++) {
-        const tr = travellers[i];
-        tr.progress = Math.min(tr.progress + tr.speed, 1);
-
-        const cx = tr.x + (tr.tx - tr.x) * tr.progress;
-        const cy = tr.y + (tr.ty - tr.y) * tr.progress;
-
-        tr.trail.push({ x: cx, y: cy });
-        if (tr.trail.length > 18) tr.trail.shift();
-
-        const fade = tr.progress < 0.1
-          ? tr.progress / 0.1
-          : tr.progress > 0.9
-          ? (1 - tr.progress) / 0.1
-          : 1;
-        const alpha = tr.opacity * fade * dim;
-
-        if (tr.trail.length > 1) {
-          for (let j = 1; j < tr.trail.length; j++) {
-            const t0 = tr.trail[j - 1];
-            const t1 = tr.trail[j];
-            const ratio = j / tr.trail.length;
-            ctx.beginPath();
-            ctx.moveTo(t0.x, t0.y);
-            ctx.lineTo(t1.x, t1.y);
-            ctx.strokeStyle = `rgba(180, 220, 255, ${alpha * ratio * 0.6})`;
-            ctx.lineWidth = tr.r * ratio * 1.5;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-          }
-        }
-
-        const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, tr.r * 4);
-        grad.addColorStop(0, `rgba(180, 220, 255, ${alpha})`);
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.beginPath();
-        ctx.arc(cx, cy, tr.r * 4, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
-
-        ctx.beginPath();
-        ctx.arc(cx, cy, tr.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(220, 235, 255, ${alpha})`;
-        ctx.fill();
-
-        if (tr.progress >= 1) travellers[i] = makeTraveller(W, H);
+        ctx.restore();
       }
 
       raf = requestAnimationFrame(draw);
     };
 
-    const onMouse = (e: MouseEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; };
-    const onScroll = () => { scrollY = window.scrollY; };
+    const onMouse = (e: MouseEvent) => {
+      mouse.targetX = e.clientX;
+      mouse.targetY = e.clientY;
+    };
+    const onScroll = () => { targetScrollY = window.scrollY; };
 
     init();
     draw();
@@ -301,3 +382,7 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
     />
   );
 }
+
+
+
+

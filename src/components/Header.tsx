@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/button';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X, Moon, Sun, Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   darkMode: boolean;
@@ -27,11 +27,10 @@ export function Header({ darkMode, toggleDarkMode }: HeaderProps) {
     { name: 'Contact',        href: '#contact' },
   ];
 
-  // Track scroll to highlight active section + shrink header
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-      const scrollPosition = window.scrollY + 120;
+      const scrollPosition = window.scrollY + 140;
       for (const nav of navigation) {
         const el = document.getElementById(nav.href.substring(1));
         if (el && scrollPosition >= el.offsetTop && scrollPosition < el.offsetTop + el.offsetHeight) {
@@ -44,7 +43,6 @@ export function Header({ darkMode, toggleDarkMode }: HeaderProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Move the sliding pill indicator under the active nav item
   useEffect(() => {
     const btn = activeRef.current;
     const nav = navRef.current;
@@ -63,30 +61,28 @@ export function Header({ darkMode, toggleDarkMode }: HeaderProps) {
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? 'py-2 bg-background/60 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]'
-          : 'py-4 bg-transparent'
+          ? 'py-3 bg-black/40 backdrop-blur-2xl border-b border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]'
+          : 'py-5 bg-transparent'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
 
-          {/* Logo / name */}
-          <div className="flex items-center gap-2">
-            {/* Animated orbit dot */}
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
+          {/* Brand Name & Portfolio Badge */}
+          <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => scrollToSection('#home')}>
+            <span className="text-base sm:text-lg font-extrabold tracking-wider text-white group-hover:text-gray-200 transition-colors font-mono">
+              MOHAMMED ZAIN KHAZI
             </span>
-            <span className="text-lg font-bold tracking-tight bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent bg-[length:200%] animate-[shimmer_4s_linear_infinite]">
-              Mohammed Zain Khazi
+            <span className="hidden sm:inline-block text-[10px] font-mono font-bold uppercase tracking-widest text-gray-300 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15 shadow-sm">
+              PORTFOLIO
             </span>
           </div>
 
-          {/* Desktop nav */}
-          <div ref={navRef} className="hidden md:flex items-center relative">
-            {/* Sliding pill */}
+          {/* Desktop Navigation Bar with Floating Glass Pill */}
+          <div ref={navRef} className="hidden md:flex items-center relative p-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl">
+            {/* Active Pill Indicator */}
             <span
-              className="absolute bottom-0 h-full rounded-full bg-primary/10 dark:bg-primary/20 border border-primary/30 dark:border-primary/50 transition-all duration-300 ease-out pointer-events-none"
+              className="absolute top-1.5 bottom-1.5 rounded-full bg-white/10 border border-white/20 transition-all duration-300 ease-out pointer-events-none shadow-md"
               style={{ left: pillStyle.left, width: pillStyle.width }}
             />
 
@@ -97,44 +93,40 @@ export function Header({ darkMode, toggleDarkMode }: HeaderProps) {
                   key={item.name}
                   ref={isActive ? (el) => { activeRef.current = el; } : undefined}
                   onClick={() => scrollToSection(item.href)}
-                  className={`relative px-4 py-2 text-sm font-medium rounded-full transition-colors duration-200 z-10 ${
+                  className={`relative px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full transition-all duration-200 z-10 ${
                     isActive
-                      ? 'text-primary'
-                      : 'text-muted-foreground hover:text-foreground'
+                      ? 'text-white font-bold'
+                      : 'text-gray-400 hover:text-white'
                   }`}
                 >
                   {item.name}
-                  {/* Active dot */}
-                  {isActive && (
-                    <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                  )}
                 </button>
               );
             })}
           </div>
 
-          {/* Right controls */}
-          <div className="flex items-center gap-2">
-            {/* Dark mode toggle — pill style */}
+          {/* Right Control Actions */}
+          <div className="flex items-center gap-3">
+            {/* Single-Button Theme Toggle Icon */}
             <button
               onClick={toggleDarkMode}
-              className="relative flex items-center gap-1 px-3 py-1.5 rounded-full border border-foreground/20 dark:border-primary/40 bg-foreground/5 dark:bg-primary/10 backdrop-blur-sm text-muted-foreground hover:text-foreground hover:border-foreground/40 dark:hover:border-primary/70 transition-all duration-200 text-sm"
-              aria-label="Toggle dark mode"
+              className="p-2 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-gray-300 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all duration-300 shadow-md flex items-center justify-center"
+              aria-label="Toggle theme"
+              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              <Sun className={`h-3.5 w-3.5 transition-all duration-300 ${darkMode ? 'opacity-40 scale-75' : 'opacity-100 scale-100 text-yellow-400'}`} />
-              <span className="w-8 h-4 rounded-full bg-muted relative mx-1">
-                <span
-                  className={`absolute top-0.5 h-3 w-3 rounded-full bg-primary transition-all duration-300 ${darkMode ? 'left-4' : 'left-0.5'}`}
-                />
-              </span>
-              <Moon className={`h-3.5 w-3.5 transition-all duration-300 ${darkMode ? 'opacity-100 scale-100 text-primary' : 'opacity-40 scale-75'}`} />
+              {darkMode ? (
+                <Sun className="h-4 w-4 text-gray-200 transition-transform duration-300 hover:rotate-45" />
+              ) : (
+                <Moon className="h-4 w-4 text-gray-200 transition-transform duration-300 hover:-rotate-12" />
+              )}
             </button>
 
-            {/* Mobile hamburger */}
+
+            {/* Mobile Navigation Trigger */}
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden p-2 rounded-full border border-foreground/20 dark:border-primary/40 hover:border-foreground/40 dark:hover:border-primary/70 transition-colors"
+              className="md:hidden p-2 rounded-xl border border-white/15 bg-white/5 backdrop-blur-md hover:border-amber-400/50 text-white"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               {isMenuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -142,26 +134,26 @@ export function Header({ darkMode, toggleDarkMode }: HeaderProps) {
           </div>
         </div>
 
-        {/* Mobile menu — slide down */}
+        {/* Mobile Navigation Dropdown */}
         <div
           className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
             isMenuOpen ? 'max-h-96 opacity-100 mt-3' : 'max-h-0 opacity-0'
           }`}
         >
-          <nav className="flex flex-col gap-1 pb-4 rounded-2xl border border-border bg-background/80 backdrop-blur-xl p-3">
+          <nav className="flex flex-col gap-1.5 p-3 rounded-2xl border border-white/10 bg-black/80 backdrop-blur-2xl">
             {navigation.map((item) => {
               const isActive = activeSection === item.href.substring(1);
               return (
                 <button
                   key={item.name}
                   onClick={() => scrollToSection(item.href)}
-                  className={`text-left py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-3 ${
+                  className={`text-left py-2.5 px-4 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all duration-200 flex items-center gap-3 ${
                     isActive
-                      ? 'text-primary bg-primary/10 border border-primary/20'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                      ? 'text-amber-300 bg-amber-500/10 border border-amber-400/30'
+                      : 'text-gray-300 hover:text-white hover:bg-white/5'
                   }`}
                 >
-                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />}
+                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />}
                   {item.name}
                 </button>
               );
@@ -172,3 +164,4 @@ export function Header({ darkMode, toggleDarkMode }: HeaderProps) {
     </header>
   );
 }
+
