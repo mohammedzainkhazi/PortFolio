@@ -68,13 +68,15 @@ export function Header({ darkMode, toggleDarkMode }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center">
 
-          {/* Clean Brand Name */}
-          <div className="flex items-center cursor-pointer" onClick={() => scrollToSection('#home')}>
-            <span className="text-base sm:text-lg font-extrabold tracking-wider text-white hover:text-cyan-300 transition-colors">
+          {/* Brand Name & Portfolio Badge */}
+          <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => scrollToSection('#home')}>
+            <span className="text-base sm:text-lg font-extrabold tracking-wider text-white group-hover:text-gray-200 transition-colors font-mono">
               MOHAMMED ZAIN KHAZI
             </span>
+            <span className="hidden sm:inline-block text-[10px] font-mono font-bold uppercase tracking-widest text-gray-300 bg-white/10 px-2.5 py-0.5 rounded-full border border-white/15 shadow-sm">
+              PORTFOLIO
+            </span>
           </div>
-
 
           {/* Desktop Navigation Bar with Floating Glass Pill */}
           <div ref={navRef} className="hidden md:flex items-center relative p-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-xl">
@@ -105,18 +107,20 @@ export function Header({ darkMode, toggleDarkMode }: HeaderProps) {
 
           {/* Right Control Actions */}
           <div className="flex items-center gap-3">
-            {/* Theme Toggle Button */}
+            {/* Single-Button Theme Toggle Icon */}
             <button
               onClick={toggleDarkMode}
-              className="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-gray-300 hover:text-white hover:border-white/30 transition-all duration-300 text-xs"
-              aria-label="Toggle dark mode"
+              className="p-2 rounded-full border border-white/15 bg-white/5 backdrop-blur-md text-gray-300 hover:text-white hover:bg-white/10 hover:border-white/30 transition-all duration-300 shadow-md flex items-center justify-center"
+              aria-label="Toggle theme"
+              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
-              <Sun className={`h-3.5 w-3.5 transition-all duration-300 ${darkMode ? 'opacity-30 scale-75' : 'opacity-100 scale-100 text-gray-200'}`} />
-              <span className="w-7 h-3.5 rounded-full bg-black/60 relative mx-0.5 border border-white/10">
-                <span className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white transition-all duration-300 ${darkMode ? 'left-4' : 'left-0.5'}`} />
-              </span>
-              <Moon className={`h-3.5 w-3.5 transition-all duration-300 ${darkMode ? 'opacity-100 scale-100 text-gray-200' : 'opacity-30 scale-75'}`} />
+              {darkMode ? (
+                <Sun className="h-4 w-4 text-gray-200 transition-transform duration-300 hover:rotate-45" />
+              ) : (
+                <Moon className="h-4 w-4 text-gray-200 transition-transform duration-300 hover:-rotate-12" />
+              )}
             </button>
+
 
             {/* Mobile Navigation Trigger */}
             <Button

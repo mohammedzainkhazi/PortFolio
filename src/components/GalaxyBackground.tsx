@@ -2,6 +2,8 @@
 
 import { useEffect, useRef } from 'react';
 import heroImg from '../images/black_hole_hero.jpg';
+import horizonImg from '../images/black_hole_horizon.jpg';
+import singularityImg from '../images/black_hole_singularity.jpg';
 
 interface Star {
   x: number; y: number; z: number;
@@ -14,6 +16,15 @@ interface Comet {
   speed: number;
   dx: number; dy: number;
   opacity: number;
+}
+
+interface InfallParticle {
+  angle: number;
+  dist: number;
+  speed: number;
+  size: number;
+  opacity: number;
+  length: number;
 }
 
 export default function GalaxyBackground({ darkMode = true }: { darkMode?: boolean }) {
@@ -30,6 +41,7 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
     let W = 0, H = 0;
     let stars: Star[] = [];
     let comets: Comet[] = [];
+    let infallParticles: InfallParticle[] = [];
     let mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
     let targetScrollY = 0;
     let smoothScrollY = 0;
@@ -38,11 +50,15 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
     let raf: number;
     let t = 0;
 
-    // Load Gargantua image asset
-    const img = new Image();
-    img.src = heroImg.src;
-    let imgLoaded = false;
-    img.onload = () => { imgLoaded = true; };
+    // Load 3-stage Gargantua entry transition images
+    const img1 = new Image(); img1.src = heroImg.src;
+    const img2 = new Image(); img2.src = horizonImg.src;
+    const img3 = new Image(); img3.src = singularityImg.src;
+
+    let img1Loaded = false, img2Loaded = false, img3Loaded = false;
+    img1.onload = () => { img1Loaded = true; };
+    img2.onload = () => { img2Loaded = true; };
+    img3.onload = () => { img3Loaded = true; };
 
     const createComet = (speedBoost = 1): Comet => {
       const angle = Math.PI * 0.25 + (Math.random() - 0.5) * 0.3;
@@ -50,7 +66,7 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
       return {
         x: Math.random() * W * 1.3 - W * 0.15,
         y: -60,
-        length: (Math.random() * 90 + 50) * Math.min(2, speedBoost),
+        length: (Math.random() * 90 + 50) * Math.min(2.5, speedBoost),
         speed: baseSpd,
         dx: Math.cos(angle) * baseSpd,
         dy: Math.sin(angle) * baseSpd,
@@ -58,9 +74,30 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
       };
     };
 
+    const createInfallParticle = (): InfallParticle => ({
+      angle: Math.random() * Math.PI * 2,
+      dist: Math.random() * 0.5 + 0.4, // Percentage from center
+      speed: Math.random() * 0.008 + 0.004,
+      size: Math.random() * 2 + 1,
+      opacity: Math.random() * 0.8 + 0.2,
+      length: Math.random() * 40 + 20,
+    });
+
+    let dpr = 1;
+
     const init = () => {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+      W = window.innerWidth;
+      H = window.innerHeight;
+
+      canvas.width = Math.floor(W * dpr);
+      canvas.height = Math.floor(H * dpr);
+      canvas.style.width = `${W}px`;
+      canvas.style.height = `${H}px`;
+
+      ctx.scale(dpr, dpr);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
       // Deep space stars
       const starCount = W < 768 ? 200 : 380;
@@ -74,10 +111,13 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
       }));
 
       comets = Array.from({ length: 5 }, () => createComet());
+      infallParticles = Array.from({ length: 50 }, () => createInfallParticle());
     };
 
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
       t += 0.004;
 
       // Smooth mouse & scroll lerp for silky 60fps parallax
@@ -95,26 +135,28 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
       const dim = darkRef.current ? 1 : 0.25;
       const offsetX = (mouse.x / W - 0.5) * 45;
       const offsetY = (mouse.y / H - 0.5) * 45;
+      const centerX = W * 0.5 + offsetX * 0.5;
+      const centerY = H * 0.50 + offsetY * 0.5;
 
-      // --- 1. Draw Deep Space Stars with Warp Parallax ---
+
+      // --- 1. Draw Deep Space Stars with Relativistic Warp ---
       for (const s of stars) {
-        const starSpeedMult = 1 + progress * 1.5;
+        const starSpeedMult = 1 + progress * 2.0;
         const px = (s.x + offsetX * s.z + W) % W;
         const py = (s.y + offsetY * s.z + smoothScrollY * s.z * 0.1 * starSpeedMult) % H;
         const tw = 0.5 + 0.5 * Math.sin(t * 1.6 + s.twinkle);
-        const alpha = s.opacity * (0.5 + 0.5 * tw) * dim;
+        const alpha = s.opacity * (0.5 + 0.5 * tw) * Math.max(0.1, 1 - progress * 0.8) * dim;
 
         ctx.beginPath();
-        ctx.arc(px, py, s.r * (1 + progress * 0.4), 0, Math.PI * 2);
+        ctx.arc(px, py, s.r * (1 + progress * 0.6), 0, Math.PI * 2);
         ctx.fillStyle = `rgba(226, 232, 240, ${alpha})`;
         ctx.fill();
       }
 
       // --- 2. Draw Shooting Star Comets with Gravitational Speed Surge ---
       if (dim > 0.4) {
-        // Accelerate comet speed and density as you get close to Gargantua
-        const cometSpeedMult = 1.0 + progress * 3.5 + (scrollSpeed > 3 ? 0.6 : 0);
-        const maxCometCount = Math.floor(5 + progress * 8);
+        const cometSpeedMult = 1.0 + progress * 4.0 + (scrollSpeed > 3 ? 0.8 : 0);
+        const maxCometCount = Math.floor(5 + progress * 9);
 
         if (comets.length < maxCometCount && Math.random() < 0.15) {
           comets.push(createComet(cometSpeedMult));
@@ -122,11 +164,11 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
 
         for (let i = comets.length - 1; i >= 0; i--) {
           const c = comets[i];
-          c.x += c.dx * (1 + progress * 0.8);
-          c.y += c.dy * (1 + progress * 0.8);
+          c.x += c.dx * (1 + progress * 0.9);
+          c.y += c.dy * (1 + progress * 0.9);
 
           const alpha = c.opacity * dim;
-          const currentLength = c.length * (1 + progress * 0.8);
+          const currentLength = c.length * (1 + progress * 1.2);
           const tailX = c.x - (c.dx / c.speed) * currentLength;
           const tailY = c.y - (c.dy / c.speed) * currentLength;
 
@@ -139,7 +181,7 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
           ctx.moveTo(c.x, c.y);
           ctx.lineTo(tailX, tailY);
           ctx.strokeStyle = grad;
-          ctx.lineWidth = 1.8 + progress * 1.2;
+          ctx.lineWidth = 1.8 + progress * 1.5;
           ctx.lineCap = 'round';
           ctx.stroke();
 
@@ -149,49 +191,160 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
         }
       }
 
-      // --- 3. Render Scroll-Driven Gargantua Entry Zoom ("Going Inside Gargantua") ---
-      if (imgLoaded && dim > 0.3) {
-        ctx.save();
-
-        // Maintain true 16:9 Gargantua proportions while zooming in on scroll down
+      // --- 3. Render 3-Stage Dynamic Gargantua Entry Engine ---
+      if (dim > 0.3) {
         const aspect = 16 / 9;
-        const zoomFactor = 1.0 + Math.pow(progress, 1.15) * 2.2; // Smoothly zooms up to 3.2x as you scroll down into Gargantua!
-        const baseSize = Math.max(W * 1.15, H * aspect * 1.15);
-        let imgW = baseSize * zoomFactor;
-        let imgH = imgW / aspect;
+        const baseW = Math.max(W * 1.15, H * aspect * 1.15);
 
-        const imgX = W * 0.5 + offsetX * (0.4 + progress * 0.4) - imgW / 2;
-        const imgY = H * 0.42 + offsetY * (0.4 + progress * 0.4) - imgH / 2;
-        const radius = Math.max(imgW, imgH) * 0.48;
+        // Compute 3-Stage Cross-Fade Opacities with Scroll-End Void Transition
+        let alpha1 = 1;
+        if (progress > 0.25) {
+          alpha1 = Math.max(0, 1 - (progress - 0.25) / 0.20);
+        }
 
-        // Create Radial Vignette Mask to blend outer edges seamlessly into deep space
-        const maskCanvas = document.createElement('canvas');
-        maskCanvas.width = imgW;
-        maskCanvas.height = imgH;
-        const maskCtx = maskCanvas.getContext('2d');
+        let alpha2 = 0;
+        if (progress >= 0.18 && progress <= 0.40) {
+          alpha2 = (progress - 0.18) / 0.22;
+        } else if (progress > 0.40 && progress <= 0.60) {
+          alpha2 = 1;
+        } else if (progress > 0.60 && progress <= 0.78) {
+          alpha2 = Math.max(0, 1 - (progress - 0.60) / 0.18);
+        }
 
-        if (maskCtx) {
-          maskCtx.drawImage(img, 0, 0, imgW, imgH);
+        let alpha3 = 0;
+        if (progress >= 0.50 && progress <= 0.82) {
+          alpha3 = Math.min(1, (progress - 0.50) / 0.25);
+        } else if (progress > 0.82) {
+          alpha3 = Math.max(0, 1 - (progress - 0.82) / 0.15);
+        }
 
-          // Feather edges softly to background color
-          const grad = maskCtx.createRadialGradient(
-            imgW / 2, imgH / 2, radius * (0.35 - progress * 0.1),
-            imgW / 2, imgH / 2, radius
-          );
-          grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
-          grad.addColorStop(0.75, 'rgba(0, 0, 0, 0.85)');
-          grad.addColorStop(0.94, 'rgba(0, 0, 0, 0.25)');
+        // Helper function to render high-resolution masked layer
+        const drawLayer = (imageObj: HTMLImageElement, layerAlpha: number, layerZoom: number, rotationAngle = 0) => {
+          if (layerAlpha <= 0.01) return;
+
+          ctx.save();
+          const imgW = baseW * layerZoom;
+          const imgH = imgW / aspect;
+          const imgX = centerX - imgW / 2;
+          const imgY = centerY - imgH / 2;
+          const radius = Math.max(imgW, imgH) * 0.48;
+
+          // Native DPR scaling on mask canvas for crisp 8K resolution
+          const maskCanvas = document.createElement('canvas');
+          maskCanvas.width = Math.floor(imgW * dpr);
+          maskCanvas.height = Math.floor(imgH * dpr);
+          const maskCtx = maskCanvas.getContext('2d');
+
+          if (maskCtx) {
+            maskCtx.scale(dpr, dpr);
+            maskCtx.imageSmoothingEnabled = true;
+            maskCtx.imageSmoothingQuality = 'high';
+
+            maskCtx.save();
+            if (rotationAngle !== 0) {
+              maskCtx.translate(imgW / 2, imgH / 2);
+              maskCtx.rotate(rotationAngle);
+              maskCtx.translate(-imgW / 2, -imgH / 2);
+            }
+            maskCtx.drawImage(imageObj, 0, 0, imgW, imgH);
+            maskCtx.restore();
+
+            // Soft Radial Vignette
+            const grad = maskCtx.createRadialGradient(
+              imgW / 2, imgH / 2, radius * 0.3,
+              imgW / 2, imgH / 2, radius
+            );
+            grad.addColorStop(0, 'rgba(0, 0, 0, 1)');
+            grad.addColorStop(0.75, 'rgba(0, 0, 0, 0.85)');
+            grad.addColorStop(0.94, 'rgba(0, 0, 0, 0.25)');
+            grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+            maskCtx.globalCompositeOperation = 'destination-in';
+            maskCtx.fillStyle = grad;
+            maskCtx.beginPath();
+            maskCtx.ellipse(imgW / 2, imgH / 2, radius, radius * 0.7, 0, 0, Math.PI * 2);
+            maskCtx.fill();
+
+            ctx.globalAlpha = layerAlpha * dim;
+            ctx.drawImage(maskCanvas, imgX, imgY, imgW, imgH);
+          }
+          ctx.restore();
+        };
+
+
+        // Render Stage 1: Approach View (Zooming up to 3.5x)
+        if (img1Loaded && alpha1 > 0) {
+          const zoom1 = 1.0 + Math.pow(progress, 1.2) * 3.5;
+          drawLayer(img1, alpha1, zoom1);
+        }
+
+        // Render Stage 2: Event Horizon View (Zooming up to 5.5x)
+        if (img2Loaded && alpha2 > 0) {
+          const zoom2 = 1.0 + Math.pow(Math.max(0, progress - 0.15), 1.25) * 5.5;
+          drawLayer(img2, alpha2, zoom2);
+        }
+
+        // Render Stage 3: Singularity Core Dive -> Empty Void (Deep zoom up to 9.5x!)
+        if (img3Loaded && alpha3 > 0) {
+          const zoom3 = 1.0 + Math.pow(Math.max(0, progress - 0.45), 1.35) * 9.5;
+          const rot3 = t * 0.12 + (progress - 0.45) * 0.6;
+          drawLayer(img3, alpha3, zoom3, rot3);
+        }
+      }
+
+
+      // --- 4. Relativistic Singularity Infall Particles ($p > 0.4$) ---
+      if (progress > 0.4 && dim > 0.3) {
+        ctx.save();
+        const maxDist = Math.max(W, H) * 0.6;
+        const particleAlpha = Math.min(1, (progress - 0.4) / 0.4) * dim;
+
+        for (const p of infallParticles) {
+          p.dist -= p.speed * (1 + progress * 2);
+          p.angle += 0.003 * (1 + progress * 2);
+
+          if (p.dist < 0.05) {
+            p.dist = Math.random() * 0.4 + 0.5;
+            p.angle = Math.random() * Math.PI * 2;
+          }
+
+          const currentDist = p.dist * maxDist;
+          const tailDist = currentDist + p.length * (1 + progress * 1.5);
+
+          const headX = centerX + Math.cos(p.angle) * currentDist;
+          const headY = centerY + Math.sin(p.angle) * currentDist;
+          const tailX = centerX + Math.cos(p.angle) * tailDist;
+          const tailY = centerY + Math.sin(p.angle) * tailDist;
+
+          const grad = ctx.createLinearGradient(headX, headY, tailX, tailY);
+          grad.addColorStop(0, `rgba(255, 255, 255, ${p.opacity * particleAlpha})`);
+          grad.addColorStop(0.4, `rgba(226, 232, 240, ${p.opacity * particleAlpha * 0.6})`);
           grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
 
-          maskCtx.globalCompositeOperation = 'destination-in';
-          maskCtx.fillStyle = grad;
-          maskCtx.beginPath();
-          maskCtx.ellipse(imgW / 2, imgH / 2, radius, radius * 0.7, 0, 0, Math.PI * 2);
-          maskCtx.fill();
+          ctx.beginPath();
+          ctx.moveTo(headX, headY);
+          ctx.lineTo(tailX, tailY);
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = p.size * (1 + progress * 0.8);
+          ctx.lineCap = 'round';
+          ctx.stroke();
+        }
 
-          // Render scaled Gargantua backdrop
-          ctx.globalAlpha = Math.min(0.9, 0.75 + progress * 0.15) * dim;
-          ctx.drawImage(maskCanvas, imgX, imgY);
+        // Singularity Energy Core Glow
+        if (progress > 0.65) {
+          const coreGlowRadius = (progress - 0.65) * 180;
+          const coreGrad = ctx.createRadialGradient(
+            centerX, centerY, 0,
+            centerX, centerY, coreGlowRadius
+          );
+          coreGrad.addColorStop(0, `rgba(255, 255, 255, ${(progress - 0.65) * 0.4 * dim})`);
+          coreGrad.addColorStop(0.5, `rgba(226, 232, 240, ${(progress - 0.65) * 0.2 * dim})`);
+          coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, coreGlowRadius, 0, Math.PI * 2);
+          ctx.fillStyle = coreGrad;
+          ctx.fill();
         }
 
         ctx.restore();
@@ -220,7 +373,6 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
     };
   }, []);
 
-
   return (
     <canvas
       ref={canvasRef}
@@ -230,6 +382,7 @@ export default function GalaxyBackground({ darkMode = true }: { darkMode?: boole
     />
   );
 }
+
 
 
 

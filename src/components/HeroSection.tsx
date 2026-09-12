@@ -163,14 +163,15 @@ const HeroSection = ({ onChatOpen, darkMode, visitor }: HeroSectionProps) => {
           <div className="lg:col-span-5 hero-image relative order-1 lg:order-2 flex justify-center">
             <div className="relative w-full max-w-[380px] aspect-square">
               
-              {/* Inner Clean Dark Glass Container */}
-              <div className="relative w-full h-full rounded-3xl p-1.5 bg-black/50 backdrop-blur-2xl border border-white/15 shadow-2xl overflow-hidden group">
+              {/* Inner Translucent Glass Container */}
+              <div className="relative w-full h-full rounded-3xl p-1.5 bg-black/20 backdrop-blur-md border border-white/10 shadow-lg overflow-hidden group">
                 <ImageWithFallback
                   src={darkMode ? picturebw.src : picture.src}
                   alt="Mohammed Zain Khazi"
-                  className="rounded-2xl w-full h-full object-cover group-hover:scale-105 transition-all duration-700"
+                  className="rounded-2xl w-full h-full object-cover group-hover:scale-105 transition-all duration-700 opacity-95"
                 />
               </div>
+
 
             </div>
           </div>
